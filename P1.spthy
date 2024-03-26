@@ -1,0 +1,70 @@
+theory P1
+begin
+
+functions: tag/2
+
+rule Keygen:
+    [Fr(~k)]
+    --[Gen($A, $B, ~k)]->
+    [!Ltk($A, $B, ~k)]
+
+rule Rev:
+    [!Ltk(A, B, k)]
+    --[Reveal(A)]->
+    [Out(k)]
+
+rule Init_I:
+    [Fr(~id), !Ltk(B, A, k)]
+    --[Create_I(A, ~id)]->
+    [St_I_1(A, ~id, B, k)]
+
+rule Init_R:
+    [Fr(~id), !Ltk(B, A, k)]
+    --[Create_R(B, ~id)]->
+    [St_R_1(B, ~id, A, k)]
+
+rule I_send:
+    [Fr(~x), St_I_1(A, id, B, k)]
+    -->
+    [St_I_2(A, id, B, k, ~x), Out(~x)]
+
+rule R_recv:
+    [In(x), St_R_1(B, id, A, k)]
+    --[Running(B, A, <'I', 'R', x>)]->
+    [St_R_2(B, id, A, k, x)]
+
+rule R_send:
+    [St_R_2(B, id, A, k, x)]
+    -->
+    [St_R_3(B, id, A, k, x), Out(tag(k, x))]
+
+rule I_recv:
+    [In(t), St_I_2(A, id, B, k, x)]
+    --[Eq(t, tag(k, x)), Commit(A, B, <'I', 'R', x>), Finish()]->
+    [St_I_3(A, id, B, k, x)]
+
+restriction Equality:
+    "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
+
+restriction Unidirectional:
+    "All A B #i #j k1 k2.
+    Gen(A, B, k1)@i & Gen(B, A, k2)@j ==> not(k1=k2)"
+
+// Should be Claim_commit ?
+// Verified
+lemma injectiveagreementINITIATOR:
+    "All a b t #i.
+        Commit(a,b,<'I','R',t>)@i &
+        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
+        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
+        & not (#i2 = #i)))"
+
+// Verified
+lemma Executability:
+    exists-trace
+    "Ex #i. 
+    Finish() @i &  not (Ex A #j. Reveal(A)@j)
+    "
+
+end

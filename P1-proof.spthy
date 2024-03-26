@@ -1,0 +1,160 @@
+theory P1 begin
+
+// Function signature and definition of the equational theory E
+
+functions: fst/1, pair/2, snd/1, tag/2
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+
+
+rule (modulo E) Keygen:
+   [ Fr( ~k ) ] --[ Gen( $A, $B, ~k ) ]-> [ !Ltk( $A, $B, ~k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Rev:
+   [ !Ltk( A, B, k ) ] --[ Reveal( A ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Init_I:
+   [ Fr( ~id ), !Ltk( B, A, k ) ]
+  --[ Create_I( A, ~id ) ]->
+   [ St_I_1( A, ~id, B, k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Init_R:
+   [ Fr( ~id ), !Ltk( B, A, k ) ]
+  --[ Create_R( B, ~id ) ]->
+   [ St_R_1( B, ~id, A, k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) I_send:
+   [ Fr( ~x ), St_I_1( A, id, B, k ) ]
+  -->
+   [ St_I_2( A, id, B, k, ~x ), Out( ~x ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) R_recv:
+   [ In( x ), St_R_1( B, id, A, k ) ]
+  --[ Running( B, A, <'I', 'R', x> ) ]->
+   [ St_R_2( B, id, A, k, x ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) R_send:
+   [ St_R_2( B, id, A, k, x ) ]
+  -->
+   [ St_R_3( B, id, A, k, x ), Out( tag(k, x) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) I_recv:
+   [ In( t ), St_I_2( A, id, B, k, x ) ]
+  --[ Eq( t, tag(k, x) ), Commit( A, B, <'I', 'R', x> ), Finish( )
+  ]->
+   [ St_I_3( A, id, B, k, x ) ]
+
+  /* has exactly the trivial AC variant */
+
+restriction Equality:
+  "∀ m1 m2 #i. (Eq( m1, m2 ) @ #i) ⇒ (m1 = m2)"
+  // safety formula
+
+restriction Unidirectional:
+  "∀ A B #i #j k1 k2.
+    ((Gen( A, B, k1 ) @ #i) ∧ (Gen( B, A, k2 ) @ #j)) ⇒ (¬(k1 = k2))"
+  // safety formula
+
+lemma injectiveagreementINITIATOR:
+  all-traces
+  "∀ a b t #i.
+    ((Commit( a, b, <'I', 'R', t> ) @ #i) ∧
+     (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
+    (∃ #j.
+      (Running( b, a, <'I', 'R', t> ) @ #j) ∧
+      (¬(∃ a2 b2 #i2.
+          (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ (¬(#i2 = #i)))))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ a b t #i.
+  (Commit( a, b, <'I', 'R', t> ) @ #i)
+ ∧
+  (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
+  (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
+  (∀ #j.
+    (Running( b, a, <'I', 'R', t> ) @ #j)
+   ⇒
+    ∃ a2 b2 #i2.
+     (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ ¬(#i2 = #i))"
+*/
+simplify
+solve( St_I_2( a, id, b, k, t ) ▶₁ #i )
+  case I_send
+  solve( !KU( tag(~k, ~x) ) @ #vk )
+    case R_send
+    solve( (#i2 < #i)  ∥ (#i < #i2) )
+      case case_1
+      solve( St_I_2( a2, id.1, b2, k.1, ~x ) ▶₁ #i2 )
+        case I_send
+        by contradiction /* cyclic */
+      qed
+    next
+      case case_2
+      solve( St_I_2( a2, id.1, b2, k.1, ~x ) ▶₁ #i2 )
+        case I_send
+        by contradiction /* cyclic */
+      qed
+    qed
+  next
+    case c_tag
+    solve( !KU( ~k ) @ #vk.1 )
+      case Rev
+      by contradiction /* from formulas */
+    qed
+  qed
+qed
+
+lemma Executability:
+  exists-trace
+  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+*/
+simplify
+solve( St_I_2( A, id, B, k, x ) ▶₁ #i )
+  case I_send
+  solve( !KU( tag(~k, ~x) ) @ #vk )
+    case R_send
+    solve( !KU( ~x ) @ #vk.1 )
+      case I_send
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: f172d7f00b1485446a1e7a42dc14623c2189cc42, branch: master
+Compiled at: 2023-09-01 08:49:23.916032222 UTC
+*/
+
+end
