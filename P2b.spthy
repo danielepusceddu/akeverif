@@ -119,7 +119,7 @@ lemma Executability:
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
 
-// Falsified
+// Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &

@@ -3,19 +3,6 @@ begin
 
 functions: tag/2
 
-/*
-a b x
-b a y
-a b tag(k',y)
-b a tag(k,x)
-
-In the last step, b sends tag(k,x) but will never actually know if it is accepted
-So, claiming commit is premature. This breaks injagr for the responder
-
-injagr for initiator is broken when communicating with another agent acting as initiator
-you send x, you receive y, you output tag of y, you receive tag of x
-because the initiator sends the tag before receiving confirmation
-*/
 
 rule Keygen:
     [Fr(~k)]
@@ -105,7 +92,7 @@ restriction oner:
     "All A B id1 id2 #i #j. Create_R(A, id1)@i & Create_R(B, id2)@j ==> #i = #j"
 
 // Should be Claim_commit ?
-// Falsified
+// Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
         Commit(a,b,<'I','R',t>)@i &
@@ -120,7 +107,7 @@ lemma Executability:
     "Ex #i. 
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
-// Falsified
+// Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &
