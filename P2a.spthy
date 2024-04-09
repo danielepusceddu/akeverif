@@ -96,7 +96,7 @@ restriction oner:
     "All A B id1 id2 #i #j. Create_R(A, id1)@i & Create_R(B, id2)@j ==> #i = #j"
 
 // Should be Claim_commit ?
-// Verified
+// Falsified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
         Commit(a,b,<'I','R',t>)@i &
@@ -112,6 +112,7 @@ lemma Executability:
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
 
+// Falsified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &
