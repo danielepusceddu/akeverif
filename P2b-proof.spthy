@@ -62,51 +62,33 @@ rule (modulo E) I_recv2:
   /* has exactly the trivial AC variant */
 
 rule (modulo E) I_send3:
-   [ St_I_3( A, id, B, kab, kba, x, y ), Fr( ~N ) ]
+   [ St_I_3( A, id, B, kab, kba, x, y ) ]
   -->
-   [
-   St_I_4( A, id, B, kab, kba, x, y, ~N ),
-   Out( <~N, tag(kab, <~N, y>)> )
-   ]
+   [ St_I_4( A, id, B, kab, kba, x, y ), Out( tag(kab, <x, y>) ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_recv3:
-   [ In( <N, t> ), St_R_3( B, id, A, kba, kab, x, y ) ]
-  --[ Eq( t, tag(kab, <N, y>) ) ]->
-   [ St_R_4( B, id, A, kba, kab, x, y, N ) ]
+   [ In( t ), St_R_3( B, id, A, kba, kab, x, y ) ]
+  --[ Eq( t, tag(kab, <x, y>) ) ]->
+   [ St_R_4( B, id, A, kba, kab, x, y ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_send4:
-   [ St_R_4( B, id, A, kba, kab, x, y, N ) ]
-  -->
-   [
-   St_R_5( B, id, A, kba, kab, x, y, N ), Out( tag(kba, <'R', N, x>) )
-   ]
+   [ St_R_4( B, id, A, kba, kab, x, y ) ]
+  --[ Commit( B, A, <'R', 'I', x, y> ) ]->
+   [ St_R_5( B, id, A, kba, kab, x, y ), Out( tag(kba, <x, y>) ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) I_recv4:
-   [ In( t ), St_I_4( A, id, B, kab, kba, x, y, N ) ]
-  --[ Eq( t, tag(kba, <'R', N, x>) ) ]->
-   [ St_I_5( A, id, B, kab, kba, x, y, N ) ]
-
-  /* has exactly the trivial AC variant */
-
-rule (modulo E) I_send5:
-   [ St_I_5( A, id, B, kab, kba, x, y, N ) ]
-  --[ Commit( A, B, <'I', 'R', x, y> ) ]->
-   [ St_I_6( A, id, B, kab, kba, x, y, N ), Out( tag(kab, N) ) ]
-
-  /* has exactly the trivial AC variant */
-
-rule (modulo E) R_recv5:
-   [ In( t ), St_R_5( B, id, A, kba, kab, x, y, N ) ]
+   [ In( t ), St_I_4( A, id, B, kab, kba, x, y ) ]
   --[
-  Commit( B, A, <'R', 'I', x, y> ), Finish( ), Eq( t, tag(kab, N) )
+  Commit( A, B, <'I', 'R', x, y> ), Finish( ),
+  Eq( t, tag(kba, <x, y>) )
   ]->
-   [ St_R_6( A, id, B, kab, kba, x, y, N ) ]
+   [ St_I_5( A, id, B, kab, kba, x, y ) ]
 
   /* has exactly the trivial AC variant */
 
@@ -143,42 +125,36 @@ guarded formula characterizing all counter-examples:
 */
 simplify
 solve( Commit( a, b, <'I', 'R', t> ) @ #i )
-  case I_send5
-  solve( St_I_5( a, id, b, kab, kba, x, y, N ) ▶₀ #i )
-    case I_recv4
-    solve( !KU( tag(~k.1, <'R', ~N, ~x>) ) @ #vk )
+  case I_recv4
+  solve( St_I_4( a, id, b, kab, kba, x, y ) ▶₁ #i )
+    case I_send3
+    solve( !KU( tag(~k, <~x, y>) ) @ #vk )
+      case I_send3
+      by contradiction /* from formulas */
+    next
       case R_send4
-      solve( !KU( tag(~k.2, <~N, ~y.1>) ) @ #vk.4 )
-        case I_send3
-        solve( (#i2 < #i)  ∥ (#i < #i2) )
-          case case_1
-          solve( Commit( a2, b2, <'I', 'R', ~x, ~y> ) @ #i2 )
-            case I_send5
-            solve( St_I_5( a2, id.1, b2, kab, kba, ~x, ~y, N.1 ) ▶₀ #i2 )
-              case I_recv4
-              by contradiction /* cyclic */
-            qed
-          qed
-        next
-          case case_2
-          solve( Commit( a2, b2, <'I', 'R', ~x, ~y> ) @ #i2 )
-            case I_send5
-            solve( St_I_5( a2, id.1, b2, kab, kba, ~x, ~y, N.1 ) ▶₀ #i2 )
-              case I_recv4
-              by contradiction /* cyclic */
-            qed
+      solve( (#i2 < #i)  ∥ (#i < #i2) )
+        case case_1
+        solve( Commit( a2, b2, <'I', 'R', ~x, ~y> ) @ #i2 )
+          case I_recv4
+          solve( St_I_4( a2, id.1, b2, kab, kba, ~x, ~y ) ▶₁ #i2 )
+            case I_send3
+            by contradiction /* cyclic */
           qed
         qed
       next
-        case c_tag
-        solve( !KU( ~k.2 ) @ #vk.7 )
-          case Rev
-          by contradiction /* from formulas */
+        case case_2
+        solve( Commit( a2, b2, <'I', 'R', ~x, ~y> ) @ #i2 )
+          case I_recv4
+          solve( St_I_4( a2, id.1, b2, kab, kba, ~x, ~y ) ▶₁ #i2 )
+            case I_send3
+            by contradiction /* cyclic */
+          qed
         qed
       qed
     next
       case c_tag
-      solve( !KU( ~k.1 ) @ #vk.2 )
+      solve( !KU( ~k ) @ #vk.3 )
         case Rev
         by contradiction /* from formulas */
       qed
@@ -194,26 +170,17 @@ guarded formula characterizing all satisfying traces:
 "∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
 */
 simplify
-solve( St_R_5( B, id, A, kba, kab, x, y, N ) ▶₁ #i )
-  case R_send4
-  solve( !KU( tag(~k, N) ) @ #vk )
-    case I_send5
-    solve( !KU( tag(~k, <~N, ~y>) ) @ #vk.3 )
+solve( St_I_4( A, id, B, kab, kba, x, y ) ▶₁ #i )
+  case I_send3
+  solve( !KU( tag(~k, <~x, y>) ) @ #vk )
+    case R_send4
+    solve( !KU( tag(~k.2, <~x, ~y>) ) @ #vk.2 )
       case I_send3
-      solve( !KU( tag(~k.2, <'R', ~N, ~x.1>) ) @ #vk.5 )
-        case R_send4
-        solve( !KU( tag(~k.3, <~N, ~y.1>) ) @ #vk.8 )
-          case I_send3
-          solve( !KU( ~N ) @ #vk.4 )
-            case I_send3
-            solve( !KU( ~y ) @ #vk.6 )
-              case R_send2
-              solve( !KU( ~x ) @ #vk.6 )
-                case I_send1
-                SOLVED // trace found
-              qed
-            qed
-          qed
+      solve( !KU( ~x ) @ #vk.3 )
+        case I_send1
+        solve( !KU( ~y ) @ #vk.3 )
+          case R_send2
+          SOLVED // trace found
         qed
       qed
     qed
@@ -244,78 +211,36 @@ guarded formula characterizing all counter-examples:
 */
 simplify
 solve( Commit( a, b, <'R', 'I', t> ) @ #i )
-  case R_recv5
-  solve( St_R_5( a, id, b, kba, kab, x, y, N ) ▶₁ #i )
-    case R_send4
-    solve( !KU( tag(~k, N) ) @ #vk )
+  case R_send4
+  solve( St_R_4( a, id, b, kba, kab, x, y ) ▶₀ #i )
+    case R_recv3
+    solve( !KU( tag(~k.1, <x, ~y>) ) @ #vk )
       case I_send3
-      solve( !KU( tag(~k, <<~N, y>, ~y.1>) ) @ #vk.3 )
-        case c_tag
-        solve( !KU( ~k ) @ #vk.8 )
-          case Rev
-          by contradiction /* from formulas */
-        qed
-      qed
-    next
-      case I_send5
-      solve( !KU( tag(~k, <~N, ~y>) ) @ #vk.3 )
-        case I_send3
-        solve( !KU( tag(~k.2, <'R', ~N, ~x.1>) ) @ #vk.5 )
+      solve( (#i2 < #i)  ∥ (#i < #i2) )
+        case case_1
+        solve( Commit( a2, b2, <'R', 'I', ~x, ~y> ) @ #i2 )
           case R_send4
-          solve( !KU( tag(~k.3, <~N, ~y.1>) ) @ #vk.8 )
-            case I_send3
-            solve( (#i2 < #i)  ∥ (#i < #i2) )
-              case case_1
-              solve( Commit( a2, b2, <'R', 'I', ~x, ~y> ) @ #i2 )
-                case R_recv5
-                solve( St_R_5( a2, id.1, b2, kba, kab, ~x, ~y, N.1 ) ▶₁ #i2 )
-                  case R_send4
-                  by contradiction /* cyclic */
-                qed
-              qed
-            next
-              case case_2
-              solve( Commit( a2, b2, <'R', 'I', ~x, ~y> ) @ #i2 )
-                case R_recv5
-                solve( St_R_5( a2, id.1, b2, kba, kab, ~x, ~y, N.1 ) ▶₁ #i2 )
-                  case R_send4
-                  by contradiction /* cyclic */
-                qed
-              qed
-            qed
-          next
-            case c_tag
-            solve( !KU( ~k.3 ) @ #vk.11 )
-              case Rev
-              by contradiction /* from formulas */
-            qed
-          qed
-        next
-          case c_tag
-          solve( !KU( ~k.2 ) @ #vk.8 )
-            case Rev
-            by contradiction /* from formulas */
+          solve( St_R_4( a2, id.1, b2, kba, kab, ~x, ~y ) ▶₀ #i2 )
+            case R_recv3
+            by contradiction /* cyclic */
           qed
         qed
       next
-        case c_tag
-        solve( !KU( ~k ) @ #vk.8 )
-          case Rev
-          by contradiction /* from formulas */
+        case case_2
+        solve( Commit( a2, b2, <'R', 'I', ~x, ~y> ) @ #i2 )
+          case R_send4
+          solve( St_R_4( a2, id.1, b2, kba, kab, ~x, ~y ) ▶₀ #i2 )
+            case R_recv3
+            by contradiction /* cyclic */
+          qed
         qed
       qed
     next
       case R_send4
-      solve( !KU( tag(~k, <<'R', N, x>, ~y>) ) @ #vk.3 )
-        case c_tag
-        solve( !KU( ~k ) @ #vk.12 )
-          case Rev
-          by contradiction /* from formulas */
-        qed
-      qed
+      by contradiction /* cyclic */
     next
       case c_tag
-      solve( !KU( ~k ) @ #vk.5 )
+      solve( !KU( ~k.1 ) @ #vk.3 )
         case Rev
         by contradiction /* from formulas */
       qed

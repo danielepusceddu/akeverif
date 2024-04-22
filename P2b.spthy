@@ -3,7 +3,6 @@ begin
 
 functions: tag/2
 
-
 rule Keygen:
     [Fr(~k)]
     --[Gen($A, $B, ~k)]->
@@ -45,34 +44,25 @@ rule I_recv2:
     [St_I_3(A, id, B, kab, kba, x, y)]
 
 rule I_send3:
-    [St_I_3(A, id, B, kab, kba, x, y), Fr(~N)]
+    [St_I_3(A, id, B, kab, kba, x, y)]
     -->
-    [St_I_4(A, id, B, kab, kba, x, y, ~N), Out(<~N, tag(kab, <~N, y>)>)]
+    [St_I_4(A, id, B, kab, kba, x, y), Out(tag(kab, <x, y>))]
 
 rule R_recv3:
-    [In(<N, t>), St_R_3(B, id, A, kba, kab, x, y)]
-    --[Eq(t, tag(kab, <N, y>))]->
-    [St_R_4(B, id, A, kba, kab, x, y, N)]
+    [In(t), St_R_3(B, id, A, kba, kab, x, y)]
+    --[Eq(t, tag(kab, <x, y>))]->
+    [St_R_4(B, id, A, kba, kab, x, y)]
 
 rule R_send4:
-    [St_R_4(B, id, A, kba, kab, x, y, N)]
-    -->
-    [St_R_5(B, id, A, kba, kab, x, y, N), Out(tag(kba, <'R', <N, x>>))]
+    [St_R_4(B, id, A, kba, kab, x, y)]
+    --[Commit(B, A, <'R', 'I', <x,y>>)]->
+    [St_R_5(B, id, A, kba, kab, x, y), Out(tag(kba, <x, y>))]
 
 rule I_recv4:
-    [In(t), St_I_4(A, id, B, kab, kba, x, y, N)]
-    --[Eq(t, tag(kba, <'R', <N, x>>))]->
-    [St_I_5(A, id, B, kab, kba, x, y, N)]
+    [In(t), St_I_4(A, id, B, kab, kba, x, y)]
+    --[Commit(A, B, <'I', 'R', <x,y>>), Finish(), Eq(t, tag(kba, <x, y>))]->
+    [St_I_5(A, id, B, kab, kba, x, y)]
 
-rule I_send5:
-    [St_I_5(A, id, B, kab, kba, x, y, N)]
-    --[Commit(A, B, <'I', 'R', <x,y>>)]->
-    [St_I_6(A, id, B, kab, kba, x, y, N), Out(tag(kab, N))]
-
-rule R_recv5:
-    [In(t), St_R_5(B, id, A, kba, kab, x, y, N)]
-    --[Commit(B, A, <'R', 'I', <x,y>>), Finish(), Eq(t, tag(kab, N))]->
-    [St_R_6(A, id, B, kab, kba, x, y, N)]
 
 
 restriction Equality:
@@ -98,6 +88,7 @@ lemma Executability:
     "Ex #i. 
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
+
 // Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
