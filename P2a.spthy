@@ -91,10 +91,6 @@ restriction onekeyperdirection:
     "All A B #i #j k1 k2.
     Gen(A, B, k1)@i & Gen(A, B, k2)@j ==> #i = #j"
 
-// make the attack nicer
-restriction oner:
-    "All A B id1 id2 #i #j. Create_R(A, id1)@i & Create_R(B, id2)@j ==> #i = #j"
-
 // Should be Claim_commit ?
 // Falsified
 lemma injectiveagreementINITIATOR:

@@ -3,16 +3,6 @@ begin
 
 functions: tag/2
 
-/*
-A has two Initiator sessions with B
-B has one Responder session  with A
-
-B accepts the value from session 1
-M sends y to session 1
-B sends y' to session 2
-A's session 2 sends 1,tag of y'
-B sends tag of x to A, and M feeds it to A's session 1
-*/
 
 rule Keygen:
     [Fr(~k)]
@@ -55,35 +45,34 @@ rule I_recv2:
     [St_I_3(A, id, B, kab, kba, x, y)]
 
 rule I_send3:
-    [St_I_3(A, id, B, kab, kba, x, y)]
+    [St_I_3(A, id, B, kab, kba, x, y), Fr(~N)]
     -->
-    [St_I_4(A, id, B, kab, kba, x, y), Out(tag(kab, <'1',y>))]
+    [St_I_4(A, id, B, kab, kba, x, y, ~N), Out(<~N, tag(kab, <~N, y>)>)]
 
 rule R_recv3:
-    [In(t), St_R_3(B, id, A, kba, kab, x, y)]
-    --[Eq(t, tag(kab, <'1',y>))]->
-    [St_R_4(B, id, A, kba, kab, x, y)]
+    [In(<N, t>), St_R_3(B, id, A, kba, kab, x, y)]
+    --[Eq(t, tag(kab, <N, y>))]->
+    [St_R_4(B, id, A, kba, kab, x, y, N)]
 
 rule R_send4:
-    [St_R_4(B, id, A, kba, kab, x, y)]
+    [St_R_4(B, id, A, kba, kab, x, y, N)]
     -->
-    [St_R_5(B, id, A, kba, kab, x, y), Out(tag(kba, x))]
+    [St_R_5(B, id, A, kba, kab, x, y, N), Out(tag(kba, <'R', <N, x>>))]
 
 rule I_recv4:
-    [In(t), St_I_4(A, id, B, kab, kba, x, y)]
-    --[Eq(t, tag(kba, x))]->
-    [St_I_5(A, id, B, kab, kba, x, y)]
+    [In(t), St_I_4(A, id, B, kab, kba, x, y, N)]
+    --[Eq(t, tag(kba, <'R', <N, x>>))]->
+    [St_I_5(A, id, B, kab, kba, x, y, N)]
 
 rule I_send5:
-    [St_I_5(A, id, B, kab, kba, x, y)]
+    [St_I_5(A, id, B, kab, kba, x, y, N)]
     --[Commit(A, B, <'I', 'R', <x,y>>)]->
-    [St_I_6(A, id, B, kab, kba, x, y), Out(tag(kab, <'2',y>))]
+    [St_I_6(A, id, B, kab, kba, x, y, N), Out(tag(kab, N))]
 
 rule R_recv5:
-    [In(t), St_R_5(B, id, A, kba, kab, x, y)]
-    --[Eq(t, tag(kab, <'2',y>)), Finish(), Commit(B, A, <'R', 'I', <x,y>>)]->
-    [St_R_6(B, id, A, kba, kab, x, y)]
-
+    [In(t), St_R_5(B, id, A, kba, kab, x, y, N)]
+    --[Commit(B, A, <'R', 'I', <x,y>>), Finish(), Eq(t, tag(kab, N))]->
+    [St_R_6(A, id, B, kab, kba, x, y, N)]
 
 
 restriction Equality:
@@ -93,17 +82,8 @@ restriction Unidirectional:
     "All A B #i #j k1 k2.
     Gen(A, B, k1)@i & Gen(B, A, k2)@j ==> not(k1=k2)"
 
-// make the attack nicer
-restriction onekeyperdirection:
-    "All A B #i #j k1 k2.
-    Gen(A, B, k1)@i & Gen(A, B, k2)@j ==> #i = #j"
-
-// make the attack nicer
-restriction oner:
-    "All A B id1 id2 #i #j. Create_R(A, id1)@i & Create_R(B, id2)@j ==> #i = #j"
-
 // Should be Claim_commit ?
-// Falsified
+// Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
         Commit(a,b,<'I','R',t>)@i &
@@ -118,7 +98,6 @@ lemma Executability:
     "Ex #i. 
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
-
 // Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
