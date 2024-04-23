@@ -96,7 +96,7 @@ lemma Executability:
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
 // Verified
-lemma injectiveagreementRESPONk:
+lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &
     not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))

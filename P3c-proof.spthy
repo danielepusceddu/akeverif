@@ -186,7 +186,7 @@ solve( St_I_4( A, id, B, kab, x, y, k ) ▶₁ #i )
   qed
 qed
 
-lemma injectiveagreementRESPONk:
+lemma injectiveagreementRESPONDER:
   all-traces
   "∀ a b t #i.
     ((Commit( a, b, <'R', 'I', t> ) @ #i) ∧
