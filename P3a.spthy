@@ -21,56 +21,56 @@ rule Rev:
     [Out(k)]
 
 rule Init_I:
-    [Fr(~id), !Ltk(A, B, kab), !Ltk(B, A, kba)]
+    [Fr(~id), !Ltk(A, B, kab)]
     --[Create_I(A, ~id)]->
-    [St_I_1(A, ~id, B, kab, kba)]
+    [St_I_1(A, ~id, B, kab)]
 
 rule Init_R:
-    [Fr(~id), !Ltk(A, B, kab), !Ltk(B, A, kba)]
+    [Fr(~id), !Ltk(A, B, kab)]
     --[Create_R(B, ~id)]->
-    [St_R_1(B, ~id, A, kba, kab)]
+    [St_R_1(B, ~id, A, kab)]
 
 rule I_send1:
-    [Fr(~x), St_I_1(A, id, B, kab, kba)]
+    [Fr(~x), St_I_1(A, id, B, kab)]
     -->
-    [St_I_2(A, id, B, kab, kba, ~x), Out(~x)]
+    [St_I_2(A, id, B, kab, ~x), Out(~x)]
 
 rule R_recv1:
-    [In(x), St_R_1(B, id, A, kba, kab)]
+    [In(x), St_R_1(B, id, A, kab)]
     -->
-    [St_R_2(B, id, A, kba, kab, x)]
+    [St_R_2(B, id, A, kab, x)]
 
 rule R_send2:
-    let der = kdf(kab, x, ~y) in
-    [Fr(~y), St_R_2(B, id, A, kba, kab, x)]
-    --[Running(B, A, <'I', 'R', <x, ~y, der>>)]->
-    [St_R_3(B, id, A, kba, kab, x, ~y, der), Out(~y)]
+    let k = kdf(kab, x, ~y) in
+    [Fr(~y), St_R_2(B, id, A, kab, x)]
+    --[Running(B, A, <'I', 'R', <x, ~y, k>>)]->
+    [St_R_3(B, id, A, kab, x, ~y, k), Out(~y)]
 
 rule I_recv2:
-    let der = kdf(kab, x, y) in
-    [In(y), St_I_2(A, id, B, kab, kba, x)]
-    --[Running(A, B, <'R', 'I', <x,y,der>>)]->
-    [St_I_3(A, id, B, kab, kba, x, y, der)]
+    let k = kdf(kab, x, y) in
+    [In(y), St_I_2(A, id, B, kab, x)]
+    --[Running(A, B, <'R', 'I', <x, y, k>>)]->
+    [St_I_3(A, id, B, kab, x, y, k)]
 
 rule I_send3:
-    [St_I_3(A, id, B, kab, kba, x, y, der)]
+    [St_I_3(A, id, B, kab, x, y, k)]
     -->
-    [St_I_4(A, id, B, kab, kba, x, y, der), Out(tag(der, y))]
+    [St_I_4(A, id, B, kab, x, y, k), Out(tag(k, y))]
 
 rule R_recv3:
-    [In(t), St_R_3(B, id, A, kba, kab, x, y, der)]
-    --[Eq(t, tag(der, y))]->
-    [St_R_4(B, id, A, kba, kab, x, y, der)]
+    [In(t), St_R_3(B, id, A, kab, x, y, k)]
+    --[Eq(t, tag(k, y))]->
+    [St_R_4(B, id, A, kab, x, y, k)]
 
 rule R_send4:
-    [St_R_4(B, id, A, kba, kab, x, y, der)]
-    --[Commit(B, A, <'R', 'I', <x,y,der>>)]->
-    [St_R_5(B, id, A, kba, kab, x, y, der), Out(tag(der, x))]
+    [St_R_4(B, id, A, kab, x, y, k)]
+    --[Commit(B, A, <'R', 'I', <x, y, k>>), Secret(B, A, k)]->
+    [St_R_5(B, id, A, kab, x, y, k), Out(tag(k, x))]
 
 rule I_recv4:
-    [In(t), St_I_4(A, id, B, kab, kba, x, y, der)]
-    --[Commit(A, B, <'I', 'R', <x,y,der>>), Finish(), Eq(t, tag(der, x))]->
-    [St_I_5(A, id, B, kab, kba, x, y, der)]
+    [In(t), St_I_4(A, id, B, kab, x, y, k)]
+    --[Commit(A, B, <'I', 'R', <x, y, k>>), Secret(A, B, k), Finish(), Eq(t, tag(k, x))]->
+    [St_I_5(A, id, B, kab, x, y, k)]
 
 
 restriction Equality:
@@ -113,5 +113,12 @@ lemma injectiveagreementRESPONDER:
     ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j
     & not (Ex a2 b2 #i2. Commit(a2,b2,<'R','I',t>)@i2
     & not (#i2 = #i)))"
+
+// Verified
+lemma secrecy:
+    "All A B x #i.
+    Secret(A,B,x)@i &
+    not ((Ex #r. Reveal(A)@r) | (Ex #r. Reveal(B)@r))
+    ==> not (Ex #j. K(x)@j)"
 
 end
