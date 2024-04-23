@@ -1,0 +1,104 @@
+theory P3b
+begin
+
+functions: kdf/3, tag/2
+
+/*
+a to b: x
+b to a: y
+a to b: mac{<'I', y>}kdf(k(a,b), x, y)
+b to a: mac{<'R', x>}kdf(k(a,b), x, y)
+*/
+
+rule Keygen:
+    [Fr(~k)]
+    --[Gen($A, $B, ~k)]->
+    [!Ltk($A, $B, ~k)]
+    
+rule Rev:
+    [!Ltk(A, B, k)]
+    --[Reveal(A)]->
+    [Out(k)]
+
+rule Init_I:
+    [Fr(~id), !Ltk(A, B, kab), !Ltk(B, A, kba)]
+    --[Create_I(A, ~id)]->
+    [St_I_1(A, ~id, B, kab, kba)]
+
+rule Init_R:
+    [Fr(~id), !Ltk(A, B, kab), !Ltk(B, A, kba)]
+    --[Create_R(B, ~id)]->
+    [St_R_1(B, ~id, A, kba, kab)]
+
+rule I_send1:
+    [Fr(~x), St_I_1(A, id, B, kab, kba)]
+    -->
+    [St_I_2(A, id, B, kab, kba, ~x), Out(~x)]
+
+rule R_recv1:
+    [In(x), St_R_1(B, id, A, kba, kab)]
+    -->
+    [St_R_2(B, id, A, kba, kab, x)]
+
+rule R_send2:
+    let der = kdf(kab, x, ~y) in
+    [Fr(~y), St_R_2(B, id, A, kba, kab, x)]
+    --[Running(B, A, <'I', 'R', <x, ~y, der>>)]->
+    [St_R_3(B, id, A, kba, kab, x, ~y, der), Out(~y)]
+
+rule I_recv2:
+    let der = kdf(kab, x, y) in
+    [In(y), St_I_2(A, id, B, kab, kba, x)]
+    --[Running(A, B, <'R', 'I', <x,y,der>>)]->
+    [St_I_3(A, id, B, kab, kba, x, y, der)]
+
+rule I_send3:
+    [St_I_3(A, id, B, kab, kba, x, y, der)]
+    -->
+    [St_I_4(A, id, B, kab, kba, x, y, der), Out(tag(der, <'I', y>))]
+
+rule R_recv3:
+    [In(t), St_R_3(B, id, A, kba, kab, x, y, der)]
+    --[Eq(t, tag(der, <'I', y>))]->
+    [St_R_4(B, id, A, kba, kab, x, y, der)]
+
+rule R_send4:
+    [St_R_4(B, id, A, kba, kab, x, y, der)]
+    --[Commit(B, A, <'R', 'I', <x,y,der>>)]->
+    [St_R_5(B, id, A, kba, kab, x, y, der), Out(tag(der, <'R', x>))]
+
+rule I_recv4:
+    [In(t), St_I_4(A, id, B, kab, kba, x, y, der)]
+    --[Commit(A, B, <'I', 'R', <x,y,der>>), Finish(), Eq(t, tag(der, <'R', x>))]->
+    [St_I_5(A, id, B, kab, kba, x, y, der)]
+
+
+restriction Equality:
+    "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
+
+// Should be Claim_commit ?
+// Verified
+lemma injectiveagreementINITIATOR:
+    "All a b t #i.
+        Commit(a,b,<'I','R',t>)@i &
+        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
+        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
+        & not (#i2 = #i)))"
+
+// Verified
+lemma Executability:
+    exists-trace
+    "Ex #i. 
+    Finish() @i &  not (Ex A #j. Reveal(A)@j)
+    "
+// Verified
+lemma injectiveagreementRESPONDER:
+    "All a b t #i.
+    Commit(a,b,<'R', 'I',t>)@i &
+    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+    ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j
+    & not (Ex a2 b2 #i2. Commit(a2,b2,<'R','I',t>)@i2
+    & not (#i2 = #i)))"
+
+end
