@@ -1,0 +1,165 @@
+theory OTR1 begin
+
+// Function signature and definition of the equational theory E
+
+builtins: diffie-hellman
+functions: fst/1, getMessage/1, pair/2, pk/1, revealSign/2,
+           revealVerify/3, snd/1, true/0
+equations:
+    fst(<x.1, x.2>) = x.1,
+    getMessage(revealSign(x.1, x.2)) = x.1,
+    revealVerify(revealSign(x.1, x.2), x.1, pk(x.2)) = true,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+
+
+rule (modulo E) GenKey:
+   [ Fr( ~sk ) ] --> [ !Ltk( $A, ~sk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Rev:
+   [ !Ltk( A, sk ) ] --[ Reveal( A ) ]-> [ Out( sk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_init:
+   [ Fr( ~id ), !Ltk( $A, ~skA ) ] --> [ St_I_1( $A, $B, ~id, ~skA ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) B_init:
+   [ Fr( ~id ), !Ltk( $B, ~skB ) ] --> [ St_R_1( $B, $A, ~id, ~skB ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_send1:
+   [ Fr( ~x ), St_I_1( A, B, id, skA ) ]
+  -->
+   [
+   St_I_2( A, B, id, skA, ~x ),
+   Out( <revealSign('g'^~x, skA), pk(skA)> )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) B_recv1:
+   [ In( <t, pkA> ), St_R_1( B, A, id, skB ) ]
+  --[ Eq( revealVerify(t, getMessage(t), pkA), true ) ]->
+   [ St_R_2( B, A, id, skB, pkA, getMessage(t) ) ]
+
+  /*
+  rule (modulo AC) B_recv1:
+     [ In( <t, pkA> ), St_R_1( B, A, id, skB ) ]
+    --[ Eq( z.1, true ) ]->
+     [ St_R_2( B, A, id, skB, pkA, z ) ]
+    variants (modulo AC)
+    1. pkA   = pkA.9
+       t     = t.9
+       z     = getMessage(t.9)
+       z.1   = revealVerify(t.9, getMessage(t.9), pkA.9)
+    
+    2. pkA   = pkA.11
+       t     = revealSign(x.9, x.10)
+       z     = x.9
+       z.1   = revealVerify(revealSign(x.9, x.10), x.9, pkA.11)
+    
+    3. pkA   = pk(x.9)
+       t     = revealSign(x.11, x.9)
+       z     = x.11
+       z.1   = true
+  */
+
+rule (modulo E) B_send2:
+   [ Fr( ~y ), St_R_2( B, A, id, skB, pkA, gx ) ]
+  -->
+   [
+   St_R_3( B, A, id, skB, pkA, gx, ~y ),
+   Out( <revealSign('g'^~y, skB), pk(skB)> )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_recv2:
+   [ In( <t, pkB> ), St_I_2( A, B, id, skA, x ) ]
+  --[ Eq( revealVerify(t, getMessage(t), pkB), true ), Finish( ) ]->
+   [ St_I_3( A, B, id, skA, pkB, x, getMessage(t) ) ]
+
+  /*
+  rule (modulo AC) A_recv2:
+     [ In( <t, pkB> ), St_I_2( A, B, id, skA, x ) ]
+    --[ Eq( z.1, true ), Finish( ) ]->
+     [ St_I_3( A, B, id, skA, pkB, x, z ) ]
+    variants (modulo AC)
+    1. pkB   = pkB.10
+       t     = t.10
+       z     = getMessage(t.10)
+       z.1   = revealVerify(t.10, getMessage(t.10), pkB.10)
+    
+    2. pkB   = pkB.12
+       t     = revealSign(x.10, x.11)
+       z     = x.10
+       z.1   = revealVerify(revealSign(x.10, x.11), x.10, pkB.12)
+    
+    3. pkB   = pk(x.10)
+       t     = revealSign(x.12, x.10)
+       z     = x.12
+       z.1   = true
+  */
+
+restriction Equality:
+  "∀ m1 m2 #i. (Eq( m1, m2 ) @ #i) ⇒ (m1 = m2)"
+  // safety formula
+
+lemma Executability:
+  exists-trace
+  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+*/
+simplify
+solve( St_I_2( A, B, id, skA, x.1 ) ▶₁ #i )
+  case A_send1
+  solve( !KU( revealSign(z, x) ) @ #vk.1 )
+    case A_send1
+    solve( !KU( pk(~skA) ) @ #vk.2 )
+      case A_send1
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: f172d7f00b1485446a1e7a42dc14623c2189cc42, branch: master
+Compiled at: 2023-09-01 08:49:23.916032222 UTC
+*/
+
+end

@@ -1,0 +1,74 @@
+theory OTR2
+begin
+
+builtins: diffie-hellman, revealing-signing
+
+rule GenKey:
+    [Fr(~sk)]
+    --[Gen($A, ~sk)]->
+    [!Ltk($A, ~sk)]
+
+rule Rev:
+    [!Ltk(A, sk)]
+    --[Reveal(A)]->
+    [Out(sk)]
+
+rule A_init:
+    [Fr(~id), !Ltk($A, ~skA)]
+    --[Create_I($A, ~id)]->
+    [St_I_1($A, $B, ~id, ~skA)]
+
+rule B_init:
+    [Fr(~id), !Ltk($B, ~skB)]
+    --[Create_R($B, ~id)]->
+    [St_R_1($B, $A, ~id, ~skB)]
+
+rule A_send1:
+    [Fr(~x), St_I_1(A, B, id, skA)]
+    -->
+    [St_I_2(A, B, id, skA, ~x), Out(<revealSign('g'^~x, skA), pk(skA)>)]
+
+rule B_recv1:
+    let gy = getMessage(t) in 
+    [In(<t, pkA>), St_R_1(B, A, id, skB)]
+    --[Eq(revealVerify(t, gy, pkA), true)]->
+    [St_R_2(B, A, id, skB, pkA, gy)]
+
+rule B_send2:
+    [Fr(~y), St_R_2(B, A, id, skB, pkA, gx)]
+    --[Running(B, A)]->
+    [St_R_3(B, A, id, skB, pkA, gx, ~y), Out(<revealSign('g'^~y, skB), pk(skB)>)]
+
+rule A_recv2:
+    let gy = getMessage(t) in
+    [In(<t, pkB>), St_I_2(A, B, id, skA, x)]
+    --[Eq(revealVerify(t, gy, pkB), true), Commit(A, B), UsedPK(A, B, pkB), Finish()]->
+    [St_I_3(A, B, id, skA, pkB, x, getMessage(t))]
+
+restriction Equality:
+    "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2" 
+
+restriction MaxOneI:
+    "All A B id1 id2 #i #j. (Create_I(A, id1)@i & Create_I(B, id2)@j) ==> id1 = id2"
+
+restriction MaxOneR:
+    "All A B id1 id2 #i #j. (Create_R(A, id1)@i & Create_R(B, id2)@j) ==> id1 = id2"
+
+restriction IandR:
+    "All A id1 #i. Create_I(A, id1)@i ==> Ex B id2 #j. Create_R(B, id2)@j"
+
+restriction realPk:
+    "All A B pkB #i. UsedPK(A, B, pkB)@i ==> not(A = B) & Ex skB #j. Gen(B, skB)@j & pk(skB)=pkB"
+
+// Verified
+lemma Executability:
+    exists-trace "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j)"
+
+// Falsified
+lemma weakagreementINITIATOR:
+    "All a b #i.
+    Commit(a, b)@i &
+    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+    ==> (Ex #j. Running(b, a)@j)"
+
+end
