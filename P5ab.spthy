@@ -1,16 +1,16 @@
-theory P5
+theory P5ab
 begin
 
 builtins: symmetric-encryption
 builtins: diffie-hellman
 
-functions: kdf/3, tag/2, h/1, map/2
+functions: tag/2, h/1, map/2
 
 /*
 a to b: g^x,p,{|s|}h(k(a,b))
 b to a: g^y
-a to b: mac{<'I', 'hi'>}h(g^xy)
-b to a: mac{<'R', 'hi'>}h(g^xy)
+a to b: mac{<'I', g^x>}h(g^xy)
+b to a: mac{<'R', g^y>}h(g^xy)
 */
 
 rule Keygen:
@@ -115,10 +115,10 @@ lemma injectiveagreementRESPONDER:
     & not (#i2 = #i)))"
 
 // Verified
-lemma secrecy:
+lemma secrecy_PFS:
     "All A B x #i.
     Secret(A,B,x)@i &
-    not ((Ex #r. Reveal(A)@r) | (Ex #r. Reveal(B)@r))
+    not ((Ex #r. Reveal(A)@r & r < i) | (Ex #r. Reveal(B)@r & r < i))
     ==> not (Ex #j. K(x)@j)"
 
 end
