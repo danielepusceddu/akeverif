@@ -76,7 +76,7 @@ rule I_recv4:
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
 
-// Should be Claim_commit ?
+
 // Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.

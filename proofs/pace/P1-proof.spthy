@@ -50,13 +50,13 @@ rule (modulo E) R_recv:
 rule (modulo E) R_send:
    [ St_R_2( B, id, A, k, x ) ]
   -->
-   [ St_R_3( B, id, A, k, x ), Out( tag(k, x) ) ]
+   [ St_R_3( B, id, A, k, x ), Out( tag(x, k) ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) I_recv:
    [ In( t ), St_I_2( A, id, B, k, x ) ]
-  --[ Eq( t, tag(k, x) ), Commit( A, B, <'I', 'R', x> ), Finish( )
+  --[ Eq( t, tag(x, k) ), Commit( A, B, <'I', 'R', x> ), Finish( )
   ]->
    [ St_I_3( A, id, B, k, x ) ]
 
@@ -96,7 +96,7 @@ guarded formula characterizing all counter-examples:
 simplify
 solve( St_I_2( a, id, b, k, t ) ▶₁ #i )
   case I_send
-  solve( !KU( tag(~k, ~x) ) @ #vk )
+  solve( !KU( tag(~x, ~k) ) @ #vk )
     case R_send
     solve( (#i2 < #i)  ∥ (#i < #i2) )
       case case_1
@@ -113,7 +113,7 @@ solve( St_I_2( a, id, b, k, t ) ▶₁ #i )
     qed
   next
     case c_tag
-    solve( !KU( ~k ) @ #vk.1 )
+    solve( !KU( ~k ) @ #vk.2 )
       case Rev
       by contradiction /* from formulas */
     qed
@@ -130,7 +130,7 @@ guarded formula characterizing all satisfying traces:
 simplify
 solve( St_I_2( A, id, B, k, x ) ▶₁ #i )
   case I_send
-  solve( !KU( tag(~k, ~x) ) @ #vk )
+  solve( !KU( tag(~x, ~k) ) @ #vk )
     case R_send
     solve( !KU( ~x ) @ #vk.1 )
       case I_send
@@ -152,9 +152,9 @@ qed
 /*
 Generated from:
 Tamarin version 1.8.0
-Maude version 3.1
-Git revision: f172d7f00b1485446a1e7a42dc14623c2189cc42, branch: master
-Compiled at: 2023-09-01 08:49:23.916032222 UTC
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-08-30 13:15:41.590881948 UTC
 */
 
 end

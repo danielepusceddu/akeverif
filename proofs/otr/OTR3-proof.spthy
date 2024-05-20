@@ -1,0 +1,1159 @@
+theory OTR3 begin
+
+// Function signature and definition of the equational theory E
+
+builtins: diffie-hellman
+functions: fst/1, getMessage/1, pair/2, pk/1, revealSign/2,
+           revealVerify/3, snd/1, true/0
+equations:
+    fst(<x.1, x.2>) = x.1,
+    getMessage(revealSign(x.1, x.2)) = x.1,
+    revealVerify(revealSign(x.1, x.2), x.1, pk(x.2)) = true,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+
+
+rule (modulo E) GenKey:
+   [ Fr( ~sk ) ]
+  --[ Gen( ~sk ) ]->
+   [ !Ltk( $A, ~sk ), !Pk( $A, pk(~sk) ), Out( pk(~sk) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Rev:
+   [ !Ltk( A, sk ) ] --[ Reveal( A ) ]-> [ Out( sk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_init:
+   [ Fr( ~id ), !Ltk( A, skA ), !Pk( B, pkB ) ]
+  --[ Create_I( A, ~id ) ]->
+   [ St_I_1( A, B, ~id, skA, pkB ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) B_init:
+   [ Fr( ~id ), !Ltk( B, skB ), !Pk( A, pkA ) ]
+  --[ Create_R( B, ~id ) ]->
+   [ St_R_1( B, A, ~id, skB, pkA ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_send1:
+   [ Fr( ~x ), St_I_1( A, B, id, skA, pkB ) ]
+  -->
+   [
+   St_I_2( A, B, id, skA, pkB, ~x ),
+   Out( <revealSign(<'g'^~x, B>, skA), pk(skA)> )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) B_recv1:
+   [ In( <t, pkA> ), St_R_1( B, A, id, skB, pkA ) ]
+  --[ Eq( revealVerify(t, <fst(getMessage(t)), B>, pkA), true ) ]->
+   [ St_R_2( B, A, id, skB, pkA, fst(getMessage(t)) ) ]
+
+  /*
+  rule (modulo AC) B_recv1:
+     [ In( <t, pkA> ), St_R_1( B, A, id, skB, pkA ) ]
+    --[ Eq( z.1, true ) ]->
+     [ St_R_2( B, A, id, skB, pkA, z ) ]
+    variants (modulo AC)
+    1. B     = B.9
+       pkA   = pkA.9
+       t     = t.9
+       z     = fst(getMessage(t.9))
+       z.1   = revealVerify(t.9, <fst(getMessage(t.9)), B.9>, pkA.9)
+    
+    2. B     = x.9
+       pkA   = pk(x.11)
+       t     = revealSign(<x.13, x.9>, x.11)
+       z     = x.13
+       z.1   = true
+    
+    3. B     = B.11
+       pkA   = pkA.11
+       t     = revealSign(x.9, x.10)
+       z     = fst(x.9)
+       z.1   = revealVerify(revealSign(x.9, x.10), <fst(x.9), B.11>,
+                            pkA.11)
+    
+    4. B     = B.12
+       pkA   = pkA.12
+       t     = revealSign(<x.9, x.10>, x.11)
+       z     = x.9
+       z.1   = revealVerify(revealSign(<x.9, x.10>, x.11), <x.9, B.12>,
+                            pkA.12)
+  */
+
+rule (modulo E) B_send2:
+   [ Fr( ~y ), St_R_2( B, A, id, skB, pkA, gx ) ]
+  --[ Running( A, B, <'I', 'R', gx^~y> ), ReceivedPK( pkA ) ]->
+   [
+   St_R_3( B, A, id, skB, pkA, gx, ~y ),
+   Out( <revealSign(<'g'^~y, A>, skB), pk(skB)> )
+   ]
+
+  /*
+  rule (modulo AC) B_send2:
+     [ Fr( ~y ), St_R_2( B, A, id, skB, pkA, gx ) ]
+    --[ Running( A, B, <'I', 'R', z> ), ReceivedPK( pkA ) ]->
+     [
+     St_R_3( B, A, id, skB, pkA, gx, ~y ),
+     Out( <revealSign(<'g'^~y, A>, skB), pk(skB)> )
+     ]
+    variants (modulo AC)
+    1. ~y    = ~y.16
+       gx    = gx.19
+       z     = gx.19^~y.16
+    
+    2. ~y    = ~y.23
+       gx    = z.33^inv(~y.23)
+       z     = z.33
+    
+    3. ~y    = ~y.80
+       gx    = x.157^x.158
+       z     = x.157^(~y.80*x.158)
+    
+    4. ~y    = ~y.83
+       gx    = x.163^inv((~y.83*x.164))
+       z     = x.163^inv(x.164)
+    
+    5. ~y    = ~y.83
+       gx    = x.163^(x.164*inv(~y.83))
+       z     = x.163^x.164
+    
+    6. ~y    = ~y.84
+       gx    = x.164^(x.165*inv((~y.84*x.166)))
+       z     = x.164^(x.165*inv(x.166))
+    
+    7. gx    = DH_neutral
+       z     = DH_neutral
+  */
+
+rule (modulo E) A_recv2:
+   [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
+  --[
+  Commit( A, B, <'I', 'R', fst(getMessage(t))^x> ),
+  Eq( revealVerify(t, <fst(getMessage(t)), A>, pkB), true ),
+  Finish( )
+  ]->
+   [ St_I_3( A, B, id, skA, pkB, x, getMessage(t) ) ]
+
+  /*
+  rule (modulo AC) A_recv2:
+     [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
+    --[ Commit( A, B, <'I', 'R', z.1> ), Eq( z.2, true ), Finish( ) ]->
+     [ St_I_3( A, B, id, skA, pkB, x, z ) ]
+    variants (modulo AC)
+      1. A     = A.19
+         pkB   = pkB.22
+         t     = t.24
+         x     = one
+         z     = getMessage(t.24)
+         z.1   = fst(getMessage(t.24))
+         z.2   = revealVerify(t.24, <fst(getMessage(t.24)), A.19>, pkB.22)
+    
+      2. A     = A.20
+         pkB   = pkB.23
+         t     = t.25
+         x     = x.26
+         z     = getMessage(t.25)
+         z.1   = fst(getMessage(t.25))^x.26
+         z.2   = revealVerify(t.25, <fst(getMessage(t.25)), A.20>, pkB.23)
+    
+      3. A     = A.27
+         pkB   = pkB.30
+         t     = revealSign(z.34, x.52)
+         x     = x.33
+         z     = z.34
+         z.1   = fst(z.34)^x.33
+         z.2   = revealVerify(revealSign(z.34, x.52), <fst(z.34), A.27>,
+                              pkB.30)
+    
+      4. A     = A.27
+         pkB   = pkB.30
+         t     = revealSign(z.34, x.52)
+         x     = one
+         z     = z.34
+         z.1   = fst(z.34)
+         z.2   = revealVerify(revealSign(z.34, x.52), <fst(z.34), A.27>,
+                              pkB.30)
+    
+      5. A     = A.27
+         pkB   = pkB.30
+         t     = revealSign(<DH_neutral, x.51>, x.52)
+         z     = <DH_neutral, x.51>
+         z.1   = DH_neutral
+         z.2   = revealVerify(revealSign(<DH_neutral, x.51>, x.52),
+                              <DH_neutral, A.27>, pkB.30)
+    
+      6. A     = A.28
+         pkB   = pkB.31
+         t     = revealSign(<z.38, x.53>, x.54)
+         x     = one
+         z     = <z.38, x.53>
+         z.1   = z.38
+         z.2   = revealVerify(revealSign(<z.38, x.53>, x.54), <z.38, A.28>,
+                              pkB.31)
+    
+      7. A     = A.28
+         pkB   = pkB.31
+         t     = revealSign(<x.52, x.53>, x.54)
+         x     = x.34
+         z     = <x.52, x.53>
+         z.1   = x.52^x.34
+         z.2   = revealVerify(revealSign(<x.52, x.53>, x.54), <x.52, A.28>,
+                              pkB.31)
+    
+      8. A     = A.29
+         pkB   = pkB.32
+         t     = revealSign(<z.39^x.54, x.55>, x.56)
+         x     = inv(x.54)
+         z     = <z.39^x.54, x.55>
+         z.1   = z.39
+         z.2   = revealVerify(revealSign(<z.39^x.54, x.55>, x.56),
+                              <z.39^x.54, A.29>, pkB.32)
+    
+      9. A     = A.29
+         pkB   = pkB.32
+         t     = revealSign(<z.39^inv(x.35), x.55>, x.56)
+         x     = x.35
+         z     = <z.39^inv(x.35), x.55>
+         z.1   = z.39
+         z.2   = revealVerify(revealSign(<z.39^inv(x.35), x.55>, x.56),
+                              <z.39^inv(x.35), A.29>, pkB.32)
+    
+     10. A     = A.29
+         pkB   = pkB.32
+         t     = revealSign(<x.53^x.54, x.55>, x.56)
+         x     = x.35
+         z     = <x.53^x.54, x.55>
+         z.1   = x.53^(x.35*x.54)
+         z.2   = revealVerify(revealSign(<x.53^x.54, x.55>, x.56),
+                              <x.53^x.54, A.29>, pkB.32)
+    
+     11. A     = A.29
+         pkB   = pk(x.56)
+         t     = revealSign(<z.39, A.29>, x.56)
+         x     = one
+         z     = <z.39, A.29>
+         z.1   = z.39
+         z.2   = true
+    
+     12. A     = A.29
+         pkB   = pk(x.56)
+         t     = revealSign(<DH_neutral, A.29>, x.56)
+         z     = <DH_neutral, A.29>
+         z.1   = DH_neutral
+         z.2   = true
+    
+     13. A     = A.29
+         pkB   = pk(x.56)
+         t     = revealSign(<z.39^inv(x.35), A.29>, x.56)
+         x     = x.35
+         z     = <z.39^inv(x.35), A.29>
+         z.1   = z.39
+         z.2   = true
+    
+     14. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<z.40^(x.55*inv(x.56)), x.57>, x.58)
+         x     = (x.56*inv(x.55))
+         z     = <z.40^(x.55*inv(x.56)), x.57>
+         z.1   = z.40
+         z.2   = revealVerify(revealSign(<z.40^(x.55*inv(x.56)), x.57>,
+                                         x.58),
+                              <z.40^(x.55*inv(x.56)), A.30>, pkB.33)
+    
+     15. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^x.55, x.56>, x.57)
+         x     = inv((x.55*x.58))
+         z     = <x.54^x.55, x.56>
+         z.1   = x.54^inv(x.58)
+         z.2   = revealVerify(revealSign(<x.54^x.55, x.56>, x.57),
+                              <x.54^x.55, A.30>, pkB.33)
+    
+     16. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^x.55, x.56>, x.57)
+         x     = (x.58*inv(x.55))
+         z     = <x.54^x.55, x.56>
+         z.1   = x.54^x.58
+         z.2   = revealVerify(revealSign(<x.54^x.55, x.56>, x.57),
+                              <x.54^x.55, A.30>, pkB.33)
+    
+     17. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^inv(x.55), x.56>, x.57)
+         x     = inv(x.58)
+         z     = <x.54^inv(x.55), x.56>
+         z.1   = x.54^inv((x.55*x.58))
+         z.2   = revealVerify(revealSign(<x.54^inv(x.55), x.56>, x.57),
+                              <x.54^inv(x.55), A.30>, pkB.33)
+    
+     18. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^inv(x.55), x.56>, x.57)
+         x     = (x.55*x.58)
+         z     = <x.54^inv(x.55), x.56>
+         z.1   = x.54^x.58
+         z.2   = revealVerify(revealSign(<x.54^inv(x.55), x.56>, x.57),
+                              <x.54^inv(x.55), A.30>, pkB.33)
+    
+     19. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^inv((x.36*x.56)), x.57>, x.58)
+         x     = x.36
+         z     = <x.54^inv((x.36*x.56)), x.57>
+         z.1   = x.54^inv(x.56)
+         z.2   = revealVerify(revealSign(<x.54^inv((x.36*x.56)), x.57>,
+                                         x.58),
+                              <x.54^inv((x.36*x.56)), A.30>, pkB.33)
+    
+     20. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^(x.55*x.56), x.57>, x.58)
+         x     = inv(x.55)
+         z     = <x.54^(x.55*x.56), x.57>
+         z.1   = x.54^x.56
+         z.2   = revealVerify(revealSign(<x.54^(x.55*x.56), x.57>, x.58),
+                              <x.54^(x.55*x.56), A.30>, pkB.33)
+    
+     21. A     = A.30
+         pkB   = pkB.33
+         t     = revealSign(<x.54^(x.55*inv(x.36)), x.57>, x.58)
+         x     = x.36
+         z     = <x.54^(x.55*inv(x.36)), x.57>
+         z.1   = x.54^x.55
+         z.2   = revealVerify(revealSign(<x.54^(x.55*inv(x.36)), x.57>,
+                                         x.58),
+                              <x.54^(x.55*inv(x.36)), A.30>, pkB.33)
+    
+     22. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^x.56, x.57>, x.58)
+         x     = (x.59*inv((x.56*x.60)))
+         z     = <x.55^x.56, x.57>
+         z.1   = x.55^(x.59*inv(x.60))
+         z.2   = revealVerify(revealSign(<x.55^x.56, x.57>, x.58),
+                              <x.55^x.56, A.31>, pkB.34)
+    
+     23. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^inv(x.56), x.57>, x.58)
+         x     = (x.59*inv(x.60))
+         z     = <x.55^inv(x.56), x.57>
+         z.1   = x.55^(x.59*inv((x.56*x.60)))
+         z.2   = revealVerify(revealSign(<x.55^inv(x.56), x.57>, x.58),
+                              <x.55^inv(x.56), A.31>, pkB.34)
+    
+     24. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^inv((x.56*x.57)), x.58>, x.59)
+         x     = (x.56*x.60)
+         z     = <x.55^inv((x.56*x.57)), x.58>
+         z.1   = x.55^(x.60*inv(x.57))
+         z.2   = revealVerify(revealSign(<x.55^inv((x.56*x.57)), x.58>,
+                                         x.59),
+                              <x.55^inv((x.56*x.57)), A.31>, pkB.34)
+    
+     25. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^inv((x.56*x.57)), x.58>, x.59)
+         x     = (x.56*inv(x.60))
+         z     = <x.55^inv((x.56*x.57)), x.58>
+         z.1   = x.55^inv((x.57*x.60))
+         z.2   = revealVerify(revealSign(<x.55^inv((x.56*x.57)), x.58>,
+                                         x.59),
+                              <x.55^inv((x.56*x.57)), A.31>, pkB.34)
+    
+     26. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*x.57), x.58>, x.59)
+         x     = inv((x.56*x.60))
+         z     = <x.55^(x.56*x.57), x.58>
+         z.1   = x.55^(x.57*inv(x.60))
+         z.2   = revealVerify(revealSign(<x.55^(x.56*x.57), x.58>, x.59),
+                              <x.55^(x.56*x.57), A.31>, pkB.34)
+    
+     27. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*x.57), x.58>, x.59)
+         x     = (x.60*inv(x.56))
+         z     = <x.55^(x.56*x.57), x.58>
+         z.1   = x.55^(x.57*x.60)
+         z.2   = revealVerify(revealSign(<x.55^(x.56*x.57), x.58>, x.59),
+                              <x.55^(x.56*x.57), A.31>, pkB.34)
+    
+     28. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*x.57*inv(x.58)), x.59>, x.60)
+         x     = (x.58*inv(x.56))
+         z     = <x.55^(x.56*x.57*inv(x.58)), x.59>
+         z.1   = x.55^x.57
+         z.2   = revealVerify(revealSign(<x.55^(x.56*x.57*inv(x.58)), x.59>,
+                                         x.60),
+                              <x.55^(x.56*x.57*inv(x.58)), A.31>, pkB.34)
+    
+     29. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv(x.57)), x.58>, x.59)
+         x     = inv(x.60)
+         z     = <x.55^(x.56*inv(x.57)), x.58>
+         z.1   = x.55^(x.56*inv((x.57*x.60)))
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv(x.57)), x.58>,
+                                         x.59),
+                              <x.55^(x.56*inv(x.57)), A.31>, pkB.34)
+    
+     30. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv(x.57)), x.58>, x.59)
+         x     = inv((x.56*x.60))
+         z     = <x.55^(x.56*inv(x.57)), x.58>
+         z.1   = x.55^inv((x.57*x.60))
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv(x.57)), x.58>,
+                                         x.59),
+                              <x.55^(x.56*inv(x.57)), A.31>, pkB.34)
+    
+     31. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv(x.57)), x.58>, x.59)
+         x     = (x.57*x.60)
+         z     = <x.55^(x.56*inv(x.57)), x.58>
+         z.1   = x.55^(x.56*x.60)
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv(x.57)), x.58>,
+                                         x.59),
+                              <x.55^(x.56*inv(x.57)), A.31>, pkB.34)
+    
+     32. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv(x.57)), x.58>, x.59)
+         x     = (x.57*x.60*inv(x.56))
+         z     = <x.55^(x.56*inv(x.57)), x.58>
+         z.1   = x.55^x.60
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv(x.57)), x.58>,
+                                         x.59),
+                              <x.55^(x.56*inv(x.57)), A.31>, pkB.34)
+    
+     33. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv(x.57)), x.58>, x.59)
+         x     = (x.57*inv((x.56*x.60)))
+         z     = <x.55^(x.56*inv(x.57)), x.58>
+         z.1   = x.55^inv(x.60)
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv(x.57)), x.58>,
+                                         x.59),
+                              <x.55^(x.56*inv(x.57)), A.31>, pkB.34)
+    
+     34. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv((x.37*x.58))), x.59>, x.60)
+         x     = x.37
+         z     = <x.55^(x.56*inv((x.37*x.58))), x.59>
+         z.1   = x.55^(x.56*inv(x.58))
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv((x.37*x.58))), x.59
+                                         >,
+                                         x.60),
+                              <x.55^(x.56*inv((x.37*x.58))), A.31>, pkB.34)
+    
+     35. A     = A.31
+         pkB   = pkB.34
+         t     = revealSign(<x.55^(x.56*inv((x.57*x.58))), x.59>, x.60)
+         x     = (x.57*inv(x.56))
+         z     = <x.55^(x.56*inv((x.57*x.58))), x.59>
+         z.1   = x.55^inv(x.58)
+         z.2   = revealVerify(revealSign(<x.55^(x.56*inv((x.57*x.58))), x.59
+                                         >,
+                                         x.60),
+                              <x.55^(x.56*inv((x.57*x.58))), A.31>, pkB.34)
+    
+     36. A     = A.31
+         pkB   = pk(x.58)
+         t     = revealSign(<x.60, A.31>, x.58)
+         x     = x.37
+         z     = <x.60, A.31>
+         z.1   = x.60^x.37
+         z.2   = true
+    
+     37. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^inv((x.57*x.58)), x.59>, x.60)
+         x     = (x.57*x.61*inv(x.62))
+         z     = <x.56^inv((x.57*x.58)), x.59>
+         z.1   = x.56^(x.61*inv((x.58*x.62)))
+         z.2   = revealVerify(revealSign(<x.56^inv((x.57*x.58)), x.59>,
+                                         x.60),
+                              <x.56^inv((x.57*x.58)), A.32>, pkB.35)
+    
+     38. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*x.58), x.59>, x.60)
+         x     = (x.61*inv((x.57*x.62)))
+         z     = <x.56^(x.57*x.58), x.59>
+         z.1   = x.56^(x.58*x.61*inv(x.62))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*x.58), x.59>, x.60),
+                              <x.56^(x.57*x.58), A.32>, pkB.35)
+    
+     39. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*x.58*inv(x.59)), x.60>, x.61)
+         x     = inv((x.57*x.62))
+         z     = <x.56^(x.57*x.58*inv(x.59)), x.60>
+         z.1   = x.56^(x.58*inv((x.59*x.62)))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*x.58*inv(x.59)), x.60>,
+                                         x.61),
+                              <x.56^(x.57*x.58*inv(x.59)), A.32>, pkB.35)
+    
+     40. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*x.58*inv(x.59)), x.60>, x.61)
+         x     = (x.59*x.62*inv(x.57))
+         z     = <x.56^(x.57*x.58*inv(x.59)), x.60>
+         z.1   = x.56^(x.58*x.62)
+         z.2   = revealVerify(revealSign(<x.56^(x.57*x.58*inv(x.59)), x.60>,
+                                         x.61),
+                              <x.56^(x.57*x.58*inv(x.59)), A.32>, pkB.35)
+    
+     41. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*x.58*inv(x.59)), x.60>, x.61)
+         x     = (x.59*inv((x.57*x.62)))
+         z     = <x.56^(x.57*x.58*inv(x.59)), x.60>
+         z.1   = x.56^(x.58*inv(x.62))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*x.58*inv(x.59)), x.60>,
+                                         x.61),
+                              <x.56^(x.57*x.58*inv(x.59)), A.32>, pkB.35)
+    
+     42. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*x.58*inv((x.59*x.60))), x.61>, x.62)
+         x     = (x.59*inv(x.57))
+         z     = <x.56^(x.57*x.58*inv((x.59*x.60))), x.61>
+         z.1   = x.56^(x.58*inv(x.60))
+         z.2   = revealVerify(revealSign(<
+                                          x.56^(x.57*x.58*inv((x.59*x.60))), x.61>,
+                                         x.62),
+                              <x.56^(x.57*x.58*inv((x.59*x.60))), A.32>, pkB.35)
+    
+     43. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv(x.58)), x.59>, x.60)
+         x     = (x.58*x.61*inv((x.57*x.62)))
+         z     = <x.56^(x.57*inv(x.58)), x.59>
+         z.1   = x.56^(x.61*inv(x.62))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv(x.58)), x.59>,
+                                         x.60),
+                              <x.56^(x.57*inv(x.58)), A.32>, pkB.35)
+    
+     44. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv(x.58)), x.59>, x.60)
+         x     = (x.61*inv(x.62))
+         z     = <x.56^(x.57*inv(x.58)), x.59>
+         z.1   = x.56^(x.57*x.61*inv((x.58*x.62)))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv(x.58)), x.59>,
+                                         x.60),
+                              <x.56^(x.57*inv(x.58)), A.32>, pkB.35)
+    
+     45. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv(x.58)), x.59>, x.60)
+         x     = (x.61*inv((x.57*x.62)))
+         z     = <x.56^(x.57*inv(x.58)), x.59>
+         z.1   = x.56^(x.61*inv((x.58*x.62)))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv(x.58)), x.59>,
+                                         x.60),
+                              <x.56^(x.57*inv(x.58)), A.32>, pkB.35)
+    
+     46. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60>, x.61)
+         x     = (x.58*x.62)
+         z     = <x.56^(x.57*inv((x.58*x.59))), x.60>
+         z.1   = x.56^(x.57*x.62*inv(x.59))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60
+                                         >,
+                                         x.61),
+                              <x.56^(x.57*inv((x.58*x.59))), A.32>, pkB.35)
+    
+     47. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60>, x.61)
+         x     = (x.58*x.62*inv(x.57))
+         z     = <x.56^(x.57*inv((x.58*x.59))), x.60>
+         z.1   = x.56^(x.62*inv(x.59))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60
+                                         >,
+                                         x.61),
+                              <x.56^(x.57*inv((x.58*x.59))), A.32>, pkB.35)
+    
+     48. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60>, x.61)
+         x     = (x.58*inv(x.62))
+         z     = <x.56^(x.57*inv((x.58*x.59))), x.60>
+         z.1   = x.56^(x.57*inv((x.59*x.62)))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60
+                                         >,
+                                         x.61),
+                              <x.56^(x.57*inv((x.58*x.59))), A.32>, pkB.35)
+    
+     49. A     = A.32
+         pkB   = pkB.35
+         t     = revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60>, x.61)
+         x     = (x.58*inv((x.57*x.62)))
+         z     = <x.56^(x.57*inv((x.58*x.59))), x.60>
+         z.1   = x.56^inv((x.59*x.62))
+         z.2   = revealVerify(revealSign(<x.56^(x.57*inv((x.58*x.59))), x.60
+                                         >,
+                                         x.61),
+                              <x.56^(x.57*inv((x.58*x.59))), A.32>, pkB.35)
+    
+     50. A     = A.32
+         pkB   = pk(x.59)
+         t     = revealSign(<z.42^x.62, A.32>, x.59)
+         x     = inv(x.62)
+         z     = <z.42^x.62, A.32>
+         z.1   = z.42
+         z.2   = true
+    
+     51. A     = A.32
+         pkB   = pk(x.59)
+         t     = revealSign(<x.61^x.62, A.32>, x.59)
+         x     = x.38
+         z     = <x.61^x.62, A.32>
+         z.1   = x.61^(x.38*x.62)
+         z.2   = true
+    
+     52. A     = A.32
+         pkB   = pk(x.59)
+         t     = revealSign(<x.61^(x.62*inv(x.38)), A.32>, x.59)
+         x     = x.38
+         z     = <x.61^(x.62*inv(x.38)), A.32>
+         z.1   = x.61^x.62
+         z.2   = true
+    
+     53. A     = A.33
+         pkB   = pkB.36
+         t     = revealSign(<x.57^(x.58*x.59*inv(x.60)), x.61>, x.62)
+         x     = (x.60*x.63*inv((x.58*x.64)))
+         z     = <x.57^(x.58*x.59*inv(x.60)), x.61>
+         z.1   = x.57^(x.59*x.63*inv(x.64))
+         z.2   = revealVerify(revealSign(<x.57^(x.58*x.59*inv(x.60)), x.61>,
+                                         x.62),
+                              <x.57^(x.58*x.59*inv(x.60)), A.33>, pkB.36)
+    
+     54. A     = A.33
+         pkB   = pkB.36
+         t     = revealSign(<x.57^(x.58*x.59*inv(x.60)), x.61>, x.62)
+         x     = (x.63*inv((x.58*x.64)))
+         z     = <x.57^(x.58*x.59*inv(x.60)), x.61>
+         z.1   = x.57^(x.59*x.63*inv((x.60*x.64)))
+         z.2   = revealVerify(revealSign(<x.57^(x.58*x.59*inv(x.60)), x.61>,
+                                         x.62),
+                              <x.57^(x.58*x.59*inv(x.60)), A.33>, pkB.36)
+    
+     55. A     = A.33
+         pkB   = pkB.36
+         t     = revealSign(<x.57^(x.58*x.59*inv((x.60*x.61))), x.62>, x.63)
+         x     = (x.60*x.64*inv(x.58))
+         z     = <x.57^(x.58*x.59*inv((x.60*x.61))), x.62>
+         z.1   = x.57^(x.59*x.64*inv(x.61))
+         z.2   = revealVerify(revealSign(<
+                                          x.57^(x.58*x.59*inv((x.60*x.61))), x.62>,
+                                         x.63),
+                              <x.57^(x.58*x.59*inv((x.60*x.61))), A.33>, pkB.36)
+    
+     56. A     = A.33
+         pkB   = pkB.36
+         t     = revealSign(<x.57^(x.58*x.59*inv((x.60*x.61))), x.62>, x.63)
+         x     = (x.60*inv((x.58*x.64)))
+         z     = <x.57^(x.58*x.59*inv((x.60*x.61))), x.62>
+         z.1   = x.57^(x.59*inv((x.61*x.64)))
+         z.2   = revealVerify(revealSign(<
+                                          x.57^(x.58*x.59*inv((x.60*x.61))), x.62>,
+                                         x.63),
+                              <x.57^(x.58*x.59*inv((x.60*x.61))), A.33>, pkB.36)
+    
+     57. A     = A.33
+         pkB   = pkB.36
+         t     = revealSign(<x.57^(x.58*inv((x.59*x.60))), x.61>, x.62)
+         x     = (x.59*x.63*inv(x.64))
+         z     = <x.57^(x.58*inv((x.59*x.60))), x.61>
+         z.1   = x.57^(x.58*x.63*inv((x.60*x.64)))
+         z.2   = revealVerify(revealSign(<x.57^(x.58*inv((x.59*x.60))), x.61
+                                         >,
+                                         x.62),
+                              <x.57^(x.58*inv((x.59*x.60))), A.33>, pkB.36)
+    
+     58. A     = A.33
+         pkB   = pkB.36
+         t     = revealSign(<x.57^(x.58*inv((x.59*x.60))), x.61>, x.62)
+         x     = (x.59*x.63*inv((x.58*x.64)))
+         z     = <x.57^(x.58*inv((x.59*x.60))), x.61>
+         z.1   = x.57^(x.63*inv((x.60*x.64)))
+         z.2   = revealVerify(revealSign(<x.57^(x.58*inv((x.59*x.60))), x.61
+                                         >,
+                                         x.62),
+                              <x.57^(x.58*inv((x.59*x.60))), A.33>, pkB.36)
+    
+     59. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<z.43^(x.63*inv(x.64)), A.33>, x.60)
+         x     = (x.64*inv(x.63))
+         z     = <z.43^(x.63*inv(x.64)), A.33>
+         z.1   = z.43
+         z.2   = true
+    
+     60. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<x.62^x.63, A.33>, x.60)
+         x     = inv((x.63*x.64))
+         z     = <x.62^x.63, A.33>
+         z.1   = x.62^inv(x.64)
+         z.2   = true
+    
+     61. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<x.62^x.63, A.33>, x.60)
+         x     = (x.64*inv(x.63))
+         z     = <x.62^x.63, A.33>
+         z.1   = x.62^x.64
+         z.2   = true
+    
+     62. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<x.62^inv(x.63), A.33>, x.60)
+         x     = inv(x.64)
+         z     = <x.62^inv(x.63), A.33>
+         z.1   = x.62^inv((x.63*x.64))
+         z.2   = true
+    
+     63. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<x.62^inv(x.63), A.33>, x.60)
+         x     = (x.63*x.64)
+         z     = <x.62^inv(x.63), A.33>
+         z.1   = x.62^x.64
+         z.2   = true
+    
+     64. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<x.62^inv((x.39*x.64)), A.33>, x.60)
+         x     = x.39
+         z     = <x.62^inv((x.39*x.64)), A.33>
+         z.1   = x.62^inv(x.64)
+         z.2   = true
+    
+     65. A     = A.33
+         pkB   = pk(x.60)
+         t     = revealSign(<x.62^(x.63*x.64), A.33>, x.60)
+         x     = inv(x.63)
+         z     = <x.62^(x.63*x.64), A.33>
+         z.1   = x.62^x.64
+         z.2   = true
+    
+     66. A     = A.34
+         pkB   = pkB.37
+         t     = revealSign(<x.58^(x.59*x.60*inv((x.61*x.62))), x.63>, x.64)
+         x     = (x.61*x.65*inv((x.59*x.66)))
+         z     = <x.58^(x.59*x.60*inv((x.61*x.62))), x.63>
+         z.1   = x.58^(x.60*x.65*inv((x.62*x.66)))
+         z.2   = revealVerify(revealSign(<
+                                          x.58^(x.59*x.60*inv((x.61*x.62))), x.63>,
+                                         x.64),
+                              <x.58^(x.59*x.60*inv((x.61*x.62))), A.34>, pkB.37)
+    
+     67. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^x.64, A.34>, x.61)
+         x     = (x.65*inv((x.64*x.66)))
+         z     = <x.63^x.64, A.34>
+         z.1   = x.63^(x.65*inv(x.66))
+         z.2   = true
+    
+     68. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^inv(x.64), A.34>, x.61)
+         x     = (x.65*inv(x.66))
+         z     = <x.63^inv(x.64), A.34>
+         z.1   = x.63^(x.65*inv((x.64*x.66)))
+         z.2   = true
+    
+     69. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^inv((x.64*x.65)), A.34>, x.61)
+         x     = (x.64*x.66)
+         z     = <x.63^inv((x.64*x.65)), A.34>
+         z.1   = x.63^(x.66*inv(x.65))
+         z.2   = true
+    
+     70. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^inv((x.64*x.65)), A.34>, x.61)
+         x     = (x.64*inv(x.66))
+         z     = <x.63^inv((x.64*x.65)), A.34>
+         z.1   = x.63^inv((x.65*x.66))
+         z.2   = true
+    
+     71. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*x.65), A.34>, x.61)
+         x     = inv((x.64*x.66))
+         z     = <x.63^(x.64*x.65), A.34>
+         z.1   = x.63^(x.65*inv(x.66))
+         z.2   = true
+    
+     72. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*x.65), A.34>, x.61)
+         x     = (x.66*inv(x.64))
+         z     = <x.63^(x.64*x.65), A.34>
+         z.1   = x.63^(x.65*x.66)
+         z.2   = true
+    
+     73. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*x.65*inv(x.66)), A.34>, x.61)
+         x     = (x.66*inv(x.64))
+         z     = <x.63^(x.64*x.65*inv(x.66)), A.34>
+         z.1   = x.63^x.65
+         z.2   = true
+    
+     74. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv(x.65)), A.34>, x.61)
+         x     = inv(x.66)
+         z     = <x.63^(x.64*inv(x.65)), A.34>
+         z.1   = x.63^(x.64*inv((x.65*x.66)))
+         z.2   = true
+    
+     75. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv(x.65)), A.34>, x.61)
+         x     = inv((x.64*x.66))
+         z     = <x.63^(x.64*inv(x.65)), A.34>
+         z.1   = x.63^inv((x.65*x.66))
+         z.2   = true
+    
+     76. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv(x.65)), A.34>, x.61)
+         x     = (x.65*x.66)
+         z     = <x.63^(x.64*inv(x.65)), A.34>
+         z.1   = x.63^(x.64*x.66)
+         z.2   = true
+    
+     77. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv(x.65)), A.34>, x.61)
+         x     = (x.65*x.66*inv(x.64))
+         z     = <x.63^(x.64*inv(x.65)), A.34>
+         z.1   = x.63^x.66
+         z.2   = true
+    
+     78. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv(x.65)), A.34>, x.61)
+         x     = (x.65*inv((x.64*x.66)))
+         z     = <x.63^(x.64*inv(x.65)), A.34>
+         z.1   = x.63^inv(x.66)
+         z.2   = true
+    
+     79. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv((x.40*x.66))), A.34>, x.61)
+         x     = x.40
+         z     = <x.63^(x.64*inv((x.40*x.66))), A.34>
+         z.1   = x.63^(x.64*inv(x.66))
+         z.2   = true
+    
+     80. A     = A.34
+         pkB   = pk(x.61)
+         t     = revealSign(<x.63^(x.64*inv((x.65*x.66))), A.34>, x.61)
+         x     = (x.65*inv(x.64))
+         z     = <x.63^(x.64*inv((x.65*x.66))), A.34>
+         z.1   = x.63^inv(x.66)
+         z.2   = true
+    
+     81. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^inv((x.65*x.66)), A.35>, x.62)
+         x     = (x.65*x.67*inv(x.68))
+         z     = <x.64^inv((x.65*x.66)), A.35>
+         z.1   = x.64^(x.67*inv((x.66*x.68)))
+         z.2   = true
+    
+     82. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*x.66), A.35>, x.62)
+         x     = (x.67*inv((x.65*x.68)))
+         z     = <x.64^(x.65*x.66), A.35>
+         z.1   = x.64^(x.66*x.67*inv(x.68))
+         z.2   = true
+    
+     83. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*x.66*inv(x.67)), A.35>, x.62)
+         x     = inv((x.65*x.68))
+         z     = <x.64^(x.65*x.66*inv(x.67)), A.35>
+         z.1   = x.64^(x.66*inv((x.67*x.68)))
+         z.2   = true
+    
+     84. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*x.66*inv(x.67)), A.35>, x.62)
+         x     = (x.67*x.68*inv(x.65))
+         z     = <x.64^(x.65*x.66*inv(x.67)), A.35>
+         z.1   = x.64^(x.66*x.68)
+         z.2   = true
+    
+     85. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*x.66*inv(x.67)), A.35>, x.62)
+         x     = (x.67*inv((x.65*x.68)))
+         z     = <x.64^(x.65*x.66*inv(x.67)), A.35>
+         z.1   = x.64^(x.66*inv(x.68))
+         z.2   = true
+    
+     86. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*x.66*inv((x.67*x.68))), A.35>, x.62)
+         x     = (x.67*inv(x.65))
+         z     = <x.64^(x.65*x.66*inv((x.67*x.68))), A.35>
+         z.1   = x.64^(x.66*inv(x.68))
+         z.2   = true
+    
+     87. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv(x.66)), A.35>, x.62)
+         x     = (x.66*x.67*inv((x.65*x.68)))
+         z     = <x.64^(x.65*inv(x.66)), A.35>
+         z.1   = x.64^(x.67*inv(x.68))
+         z.2   = true
+    
+     88. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv(x.66)), A.35>, x.62)
+         x     = (x.67*inv(x.68))
+         z     = <x.64^(x.65*inv(x.66)), A.35>
+         z.1   = x.64^(x.65*x.67*inv((x.66*x.68)))
+         z.2   = true
+    
+     89. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv(x.66)), A.35>, x.62)
+         x     = (x.67*inv((x.65*x.68)))
+         z     = <x.64^(x.65*inv(x.66)), A.35>
+         z.1   = x.64^(x.67*inv((x.66*x.68)))
+         z.2   = true
+    
+     90. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv((x.66*x.67))), A.35>, x.62)
+         x     = (x.66*x.68)
+         z     = <x.64^(x.65*inv((x.66*x.67))), A.35>
+         z.1   = x.64^(x.65*x.68*inv(x.67))
+         z.2   = true
+    
+     91. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv((x.66*x.67))), A.35>, x.62)
+         x     = (x.66*x.68*inv(x.65))
+         z     = <x.64^(x.65*inv((x.66*x.67))), A.35>
+         z.1   = x.64^(x.68*inv(x.67))
+         z.2   = true
+    
+     92. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv((x.66*x.67))), A.35>, x.62)
+         x     = (x.66*inv(x.68))
+         z     = <x.64^(x.65*inv((x.66*x.67))), A.35>
+         z.1   = x.64^(x.65*inv((x.67*x.68)))
+         z.2   = true
+    
+     93. A     = A.35
+         pkB   = pk(x.62)
+         t     = revealSign(<x.64^(x.65*inv((x.66*x.67))), A.35>, x.62)
+         x     = (x.66*inv((x.65*x.68)))
+         z     = <x.64^(x.65*inv((x.66*x.67))), A.35>
+         z.1   = x.64^inv((x.67*x.68))
+         z.2   = true
+    
+     94. A     = A.36
+         pkB   = pk(x.63)
+         t     = revealSign(<x.65^(x.66*x.67*inv(x.68)), A.36>, x.63)
+         x     = (x.68*x.69*inv((x.66*x.70)))
+         z     = <x.65^(x.66*x.67*inv(x.68)), A.36>
+         z.1   = x.65^(x.67*x.69*inv(x.70))
+         z.2   = true
+    
+     95. A     = A.36
+         pkB   = pk(x.63)
+         t     = revealSign(<x.65^(x.66*x.67*inv(x.68)), A.36>, x.63)
+         x     = (x.69*inv((x.66*x.70)))
+         z     = <x.65^(x.66*x.67*inv(x.68)), A.36>
+         z.1   = x.65^(x.67*x.69*inv((x.68*x.70)))
+         z.2   = true
+    
+     96. A     = A.36
+         pkB   = pk(x.63)
+         t     = revealSign(<x.65^(x.66*x.67*inv((x.68*x.69))), A.36>, x.63)
+         x     = (x.68*x.70*inv(x.66))
+         z     = <x.65^(x.66*x.67*inv((x.68*x.69))), A.36>
+         z.1   = x.65^(x.67*x.70*inv(x.69))
+         z.2   = true
+    
+     97. A     = A.36
+         pkB   = pk(x.63)
+         t     = revealSign(<x.65^(x.66*x.67*inv((x.68*x.69))), A.36>, x.63)
+         x     = (x.68*inv((x.66*x.70)))
+         z     = <x.65^(x.66*x.67*inv((x.68*x.69))), A.36>
+         z.1   = x.65^(x.67*inv((x.69*x.70)))
+         z.2   = true
+    
+     98. A     = A.36
+         pkB   = pk(x.63)
+         t     = revealSign(<x.65^(x.66*inv((x.67*x.68))), A.36>, x.63)
+         x     = (x.67*x.69*inv(x.70))
+         z     = <x.65^(x.66*inv((x.67*x.68))), A.36>
+         z.1   = x.65^(x.66*x.69*inv((x.68*x.70)))
+         z.2   = true
+    
+     99. A     = A.36
+         pkB   = pk(x.63)
+         t     = revealSign(<x.65^(x.66*inv((x.67*x.68))), A.36>, x.63)
+         x     = (x.67*x.69*inv((x.66*x.70)))
+         z     = <x.65^(x.66*inv((x.67*x.68))), A.36>
+         z.1   = x.65^(x.69*inv((x.68*x.70)))
+         z.2   = true
+    
+    100. A     = A.37
+         pkB   = pk(x.64)
+         t     = revealSign(<x.66^(x.67*x.68*inv((x.69*x.70))), A.37>, x.64)
+         x     = (x.69*x.71*inv((x.67*x.72)))
+         z     = <x.66^(x.67*x.68*inv((x.69*x.70))), A.37>
+         z.1   = x.66^(x.68*x.71*inv((x.70*x.72)))
+         z.2   = true
+  */
+
+restriction Equality:
+  "∀ m1 m2 #i. (Eq( m1, m2 ) @ #i) ⇒ (m1 = m2)"
+  // safety formula
+
+lemma Executability:
+  exists-trace
+  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+*/
+simplify
+solve( St_I_2( A, B, id, skA, pk(x.1), x.2 ) ▶₁ #i )
+  case A_send1
+  solve( !KU( revealSign(<x, $A>, ~sk) ) @ #vk.1 )
+    case A_send1
+    solve( !KU( pk(~sk) ) @ #vk.2 )
+      case A_send1
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+lemma noninjectiveagreementINITIATOR:
+  all-traces
+  "∀ a b t #i.
+    ((Commit( a, b, <'I', 'R', t> ) @ #i) ∧
+     (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
+    (∃ #j. Running( b, a, <'I', 'R', t> ) @ #j)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ a b t #i.
+  (Commit( a, b, <'I', 'R', t> ) @ #i)
+ ∧
+  (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
+  (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
+  (∀ #j. (Running( b, a, <'I', 'R', t> ) @ #j) ⇒ ⊥)"
+*/
+simplify
+solve( St_I_2( a, b, id, skA, pk(x.1), x.2 ) ▶₁ #i )
+  case A_send1
+  solve( !KU( revealSign(<x, $A>, ~sk) ) @ #vk.1 )
+    case A_send1
+    solve( !KU( pk(~sk) ) @ #vk.2 )
+      case A_send1
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+lemma injectiveagreementINITIATOR:
+  all-traces
+  "∀ a b t #i.
+    ((Commit( a, b, <'I', 'R', t> ) @ #i) ∧
+     (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
+    (∃ #j.
+      (Running( b, a, <'I', 'R', t> ) @ #j) ∧
+      (¬(∃ a2 b2 #i2.
+          (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ (¬(#i2 = #i)))))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ a b t #i.
+  (Commit( a, b, <'I', 'R', t> ) @ #i)
+ ∧
+  (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
+  (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
+  (∀ #j.
+    (Running( b, a, <'I', 'R', t> ) @ #j)
+   ⇒
+    ∃ a2 b2 #i2.
+     (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ ¬(#i2 = #i))"
+*/
+simplify
+solve( St_I_2( a, b, id, skA, pk(x.1), x.2 ) ▶₁ #i )
+  case A_send1
+  solve( !KU( revealSign(<x, $A>, ~sk) ) @ #vk.1 )
+    case A_send1
+    solve( !KU( pk(~sk) ) @ #vk.2 )
+      case A_send1
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-08-30 13:15:41.590881948 UTC
+*/
+
+end

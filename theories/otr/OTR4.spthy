@@ -53,7 +53,7 @@ rule A_send3:
 
 rule B_recv3:
     [In(<A, s, t, pkA>), St_R_3(B, A, id, skB, pkA, gx, y)]
-    --[Eq(revealVerify(getMessage(s), <'g'^y, gx>, pkA), true), Eq(t, tag(h(gx^y), <'0', A>))]->
+    --[Eq(revealVerify(s, <'g'^y, gx>, pkA), true), Eq(t, tag(h(gx^y), <'0', A>))]->
     [St_R_4(B, A, id, skB, pkA, gx, y)]
 
 rule B_send4:
@@ -63,7 +63,7 @@ rule B_send4:
 
 rule A_recv4:
     [In(<B, s, t, pkB>), St_I_4(A, B, id, skA, pkB, x, gy)]
-    --[Eq(revealVerify(getMessage(s), <'g'^x, gy>, pkB), true), Eq(t, tag(h(gy^x), <'1', B>)), Commit(A, B, <'I', 'R', gy^x>), Secret(A, B, gy^x), Finish()]->
+    --[Eq(revealVerify(s, <'g'^x, gy>, pkB), true), Eq(t, tag(h(gy^x), <'1', B>)), Commit(A, B, <'I', 'R', gy^x>), Secret(A, B, gy^x), Finish()]->
     [St_I_5(A, B, id, skA, pkB, x, gy)]
 
 
@@ -73,7 +73,7 @@ restriction Equality:
 restriction Inequality:
     "All m1 m2 #i. NotEq(m1, m2)@i ==> not(m1=m2)"
 
-// Should be Claim_commit ?
+
 // Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
@@ -90,14 +90,6 @@ lemma Executability:
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
 // Falsified
-lemma injectiveagreementRESPONDER:
-    "All a b t #i.
-    Commit(a,b,<'R', 'I',t>)@i &
-    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-    ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j
-    & not (Ex a2 b2 #i2. Commit(a2,b2,<'R','I',t>)@i2
-    & not (#i2 = #i)))"
-
 lemma noninjectiveagreementRESPONDER:
     "All a b t #i.
         Commit(a,b,<'R', 'I',t>)@i &

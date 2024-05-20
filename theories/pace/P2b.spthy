@@ -1,21 +1,7 @@
-theory P2a
+theory P2b
 begin
 
 functions: tag/2
-
-/*
-a b x
-b a y
-a b tag(k',y)
-b a tag(k,x)
-
-In the last step, b sends tag(k,x) but will never actually know if it is accepted
-So, claiming commit is premature. This breaks injagr for the responder
-
-injagr for initiator is broken when communicating with another agent acting as initiator
-you send x, you receive y, you output tag of y, you receive tag of x
-because the initiator sends the tag before receiving confirmation
-*/
 
 rule Keygen:
     [Fr(~k)]
@@ -60,21 +46,21 @@ rule I_recv2:
 rule I_send3:
     [St_I_3(A, id, B, kab, kba, x, y)]
     -->
-    [St_I_4(A, id, B, kab, kba, x, y), Out(tag(kab, y))]
+    [St_I_4(A, id, B, kab, kba, x, y), Out(tag(kab, <x, y>))]
 
 rule R_recv3:
     [In(t), St_R_3(B, id, A, kba, kab, x, y)]
-    --[Eq(t, tag(kab, y))]->
+    --[Eq(t, tag(kab, <x, y>))]->
     [St_R_4(B, id, A, kba, kab, x, y)]
 
 rule R_send4:
     [St_R_4(B, id, A, kba, kab, x, y)]
     --[Commit(B, A, <'R', 'I', <x,y>>)]->
-    [St_R_5(B, id, A, kba, kab, x, y), Out(tag(kba, x))]
+    [St_R_5(B, id, A, kba, kab, x, y), Out(tag(kba, <x, y>))]
 
 rule I_recv4:
     [In(t), St_I_4(A, id, B, kab, kba, x, y)]
-    --[Commit(A, B, <'I', 'R', <x,y>>), Finish(), Eq(t, tag(kba, x))]->
+    --[Commit(A, B, <'I', 'R', <x,y>>), Finish(), Eq(t, tag(kba, <x, y>))]->
     [St_I_5(A, id, B, kab, kba, x, y)]
 
 
@@ -86,13 +72,8 @@ restriction Unidirectional:
     "All A B #i #j k1 k2.
     Gen(A, B, k1)@i & Gen(B, A, k2)@j ==> not(k1=k2)"
 
-// make the attack nicer
-restriction onekeyperdirection:
-    "All A B #i #j k1 k2.
-    Gen(A, B, k1)@i & Gen(A, B, k2)@j ==> #i = #j"
 
-// Should be Claim_commit ?
-// Falsified
+// Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
         Commit(a,b,<'I','R',t>)@i &
@@ -108,7 +89,7 @@ lemma Executability:
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
 
-// Falsified
+// Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &

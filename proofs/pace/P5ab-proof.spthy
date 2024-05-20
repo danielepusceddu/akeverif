@@ -1,4 +1,4 @@
-theory P5d begin
+theory P5ab begin
 
 // Function signature and definition of the equational theory E
 
@@ -117,7 +117,7 @@ rule (modulo E) R_send2:
 rule (modulo E) I_recv2:
    [ In( gy ), St_I_2( A, id, B, kab, x, s, p ) ]
   --[
-  NotEq( gy, DH_neutral ), NotEq( gy, map(s, p)^x ),
+  NotEq( gy, DH_neutral ),
   Running( A, B, <'R', 'I', map(s, p)^x, gy, h(gy^x)> )
   ]->
    [ St_I_3( A, id, B, kab, x, s, p, gy, h(gy^x) ) ]
@@ -126,375 +126,375 @@ rule (modulo E) I_recv2:
   rule (modulo AC) I_recv2:
      [ In( gy ), St_I_2( A, id, B, kab, x, s, p ) ]
     --[
-    NotEq( gy, DH_neutral ), NotEq( gy, z.1 ),
-    Running( A, B, <'R', 'I', z.1, gy, h(z)> )
+    NotEq( gy, DH_neutral ), Running( A, B, <'R', 'I', z.1, gy, h(z)> )
     ]->
      [ St_I_3( A, id, B, kab, x, s, p, gy, h(z) ) ]
     variants (modulo AC)
-     1. gy    = gy.16
-        p     = p.19
-        s     = s.20
+     1. gy    = gy.18
+        p     = p.21
+        s     = s.22
         x     = one
-        z     = gy.16
-        z.1   = map(s.20, p.19)
+        z     = gy.18
+        z.1   = map(s.22, p.21)
     
-     2. gy    = gy.17
-        p     = p.20
-        s     = s.21
-        x     = x.22
-        z     = gy.17^x.22
-        z.1   = map(s.21, p.20)^x.22
-    
-     3. gy    = DH_neutral
-        p     = p.14
-        s     = s.15
-        x     = x.16
-        z     = DH_neutral
-        z.1   = map(s.15, p.14)^x.16
-    
-     4. gy    = z.18^inv(x.17)
-        p     = p.15
-        s     = s.16
-        x     = x.17
-        z     = z.18
-        z.1   = map(s.16, p.15)^x.17
-    
-     5. gy    = z.23^x.33
-        p     = p.20
-        s     = s.21
-        x     = inv(x.33)
-        z     = z.23
-        z.1   = map(s.21, p.20)^inv(x.33)
-    
-     6. gy    = z.24^(x.34*inv(x.35))
-        p     = p.21
-        s     = s.22
-        x     = (x.35*inv(x.34))
-        z     = z.24
-        z.1   = map(s.22, p.21)^(x.35*inv(x.34))
-    
-     7. gy    = x.32^x.33
-        p     = p.20
-        s     = s.21
-        x     = x.22
-        z     = x.32^(x.22*x.33)
-        z.1   = map(s.21, p.20)^x.22
-    
-     8. gy    = x.32^(x.33*inv(x.22))
-        p     = p.20
-        s     = s.21
-        x     = x.22
-        z     = x.32^x.33
-        z.1   = map(s.21, p.20)^x.22
-    
-     9. gy    = x.33^inv((x.23*x.35))
-        p     = p.21
-        s     = s.22
-        x     = x.23
-        z     = x.33^inv(x.35)
-        z.1   = map(s.22, p.21)^x.23
-    
-    10. gy    = x.33^(x.34*x.35)
-        p     = p.21
-        s     = s.22
-        x     = inv(x.34)
-        z     = x.33^x.35
-        z.1   = map(s.22, p.21)^inv(x.34)
-    
-    11. gy    = x.34^(x.35*x.36*inv(x.37))
-        p     = p.22
-        s     = s.23
-        x     = (x.37*inv(x.35))
-        z     = x.34^x.36
-        z.1   = map(s.23, p.22)^(x.37*inv(x.35))
-    
-    12. gy    = x.34^(x.35*inv((x.24*x.37)))
+     2. gy    = gy.19
         p     = p.22
         s     = s.23
         x     = x.24
-        z     = x.34^(x.35*inv(x.37))
+        z     = gy.19^x.24
         z.1   = map(s.23, p.22)^x.24
     
-    13. gy    = x.34^(x.35*inv((x.36*x.37)))
+     3. gy    = DH_neutral
+        p     = p.16
+        s     = s.17
+        x     = x.18
+        z     = DH_neutral
+        z.1   = map(s.17, p.16)^x.18
+    
+     4. gy    = z.20^inv(x.19)
+        p     = p.17
+        s     = s.18
+        x     = x.19
+        z     = z.20
+        z.1   = map(s.18, p.17)^x.19
+    
+     5. gy    = z.25^x.37
         p     = p.22
         s     = s.23
-        x     = (x.36*inv(x.35))
-        z     = x.34^inv(x.37)
-        z.1   = map(s.23, p.22)^(x.36*inv(x.35))
+        x     = inv(x.37)
+        z     = z.25
+        z.1   = map(s.23, p.22)^inv(x.37)
     
-    14. gy    = x.35^(x.36*x.37*inv((x.38*x.39)))
+     6. gy    = z.26^(x.38*inv(x.39))
         p     = p.23
         s     = s.24
-        x     = (x.38*inv(x.36))
-        z     = x.35^(x.37*inv(x.39))
-        z.1   = map(s.24, p.23)^(x.38*inv(x.36))
+        x     = (x.39*inv(x.38))
+        z     = z.26
+        z.1   = map(s.24, p.23)^(x.39*inv(x.38))
     
-    15. gy    = x.37^x.38
+     7. gy    = x.36^x.37
+        p     = p.22
+        s     = s.23
+        x     = x.24
+        z     = x.36^(x.24*x.37)
+        z.1   = map(s.23, p.22)^x.24
+    
+     8. gy    = x.36^(x.37*inv(x.24))
+        p     = p.22
+        s     = s.23
+        x     = x.24
+        z     = x.36^x.37
+        z.1   = map(s.23, p.22)^x.24
+    
+     9. gy    = x.37^inv((x.25*x.39))
+        p     = p.23
+        s     = s.24
+        x     = x.25
+        z     = x.37^inv(x.39)
+        z.1   = map(s.24, p.23)^x.25
+    
+    10. gy    = x.37^(x.38*x.39)
+        p     = p.23
+        s     = s.24
+        x     = inv(x.38)
+        z     = x.37^x.39
+        z.1   = map(s.24, p.23)^inv(x.38)
+    
+    11. gy    = x.38^(x.39*x.40*inv(x.41))
+        p     = p.24
+        s     = s.25
+        x     = (x.41*inv(x.39))
+        z     = x.38^x.40
+        z.1   = map(s.25, p.24)^(x.41*inv(x.39))
+    
+    12. gy    = x.38^(x.39*inv((x.26*x.41)))
+        p     = p.24
+        s     = s.25
+        x     = x.26
+        z     = x.38^(x.39*inv(x.41))
+        z.1   = map(s.25, p.24)^x.26
+    
+    13. gy    = x.38^(x.39*inv((x.40*x.41)))
+        p     = p.24
+        s     = s.25
+        x     = (x.40*inv(x.39))
+        z     = x.38^inv(x.41)
+        z.1   = map(s.25, p.24)^(x.40*inv(x.39))
+    
+    14. gy    = x.39^(x.40*x.41*inv((x.42*x.43)))
         p     = p.25
         s     = s.26
-        x     = inv((x.38*x.43))
-        z     = x.37^inv(x.43)
-        z.1   = map(s.26, p.25)^inv((x.38*x.43))
+        x     = (x.42*inv(x.40))
+        z     = x.39^(x.41*inv(x.43))
+        z.1   = map(s.26, p.25)^(x.42*inv(x.40))
     
-    16. gy    = x.37^x.38
-        p     = p.25
-        s     = s.26
-        x     = (x.43*inv(x.38))
-        z     = x.37^x.43
-        z.1   = map(s.26, p.25)^(x.43*inv(x.38))
-    
-    17. gy    = x.37^inv(x.38)
-        p     = p.25
-        s     = s.26
-        x     = inv(x.43)
-        z     = x.37^inv((x.38*x.43))
-        z.1   = map(s.26, p.25)^inv(x.43)
-    
-    18. gy    = x.37^inv(x.38)
-        p     = p.25
-        s     = s.26
-        x     = (x.38*x.43)
-        z     = x.37^x.43
-        z.1   = map(s.26, p.25)^(x.38*x.43)
-    
-    19. gy    = x.38^x.39
-        p     = p.26
-        s     = s.27
-        x     = (x.44*inv((x.39*x.45)))
-        z     = x.38^(x.44*inv(x.45))
-        z.1   = map(s.27, p.26)^(x.44*inv((x.39*x.45)))
-    
-    20. gy    = x.38^inv(x.39)
-        p     = p.26
-        s     = s.27
-        x     = (x.44*inv(x.45))
-        z     = x.38^(x.44*inv((x.39*x.45)))
-        z.1   = map(s.27, p.26)^(x.44*inv(x.45))
-    
-    21. gy    = x.38^inv((x.39*x.40))
-        p     = p.26
-        s     = s.27
-        x     = (x.39*x.45)
-        z     = x.38^(x.45*inv(x.40))
-        z.1   = map(s.27, p.26)^(x.39*x.45)
-    
-    22. gy    = x.38^inv((x.39*x.40))
-        p     = p.26
-        s     = s.27
-        x     = (x.39*inv(x.45))
-        z     = x.38^inv((x.40*x.45))
-        z.1   = map(s.27, p.26)^(x.39*inv(x.45))
-    
-    23. gy    = x.38^(x.39*x.40)
-        p     = p.26
-        s     = s.27
-        x     = inv((x.39*x.45))
-        z     = x.38^(x.40*inv(x.45))
-        z.1   = map(s.27, p.26)^inv((x.39*x.45))
-    
-    24. gy    = x.38^(x.39*x.40)
-        p     = p.26
-        s     = s.27
-        x     = (x.45*inv(x.39))
-        z     = x.38^(x.40*x.45)
-        z.1   = map(s.27, p.26)^(x.45*inv(x.39))
-    
-    25. gy    = x.38^(x.39*inv(x.40))
-        p     = p.26
-        s     = s.27
-        x     = inv(x.45)
-        z     = x.38^(x.39*inv((x.40*x.45)))
-        z.1   = map(s.27, p.26)^inv(x.45)
-    
-    26. gy    = x.38^(x.39*inv(x.40))
-        p     = p.26
-        s     = s.27
-        x     = inv((x.39*x.45))
-        z     = x.38^inv((x.40*x.45))
-        z.1   = map(s.27, p.26)^inv((x.39*x.45))
-    
-    27. gy    = x.38^(x.39*inv(x.40))
-        p     = p.26
-        s     = s.27
-        x     = (x.40*x.45)
-        z     = x.38^(x.39*x.45)
-        z.1   = map(s.27, p.26)^(x.40*x.45)
-    
-    28. gy    = x.38^(x.39*inv(x.40))
-        p     = p.26
-        s     = s.27
-        x     = (x.40*x.45*inv(x.39))
-        z     = x.38^x.45
-        z.1   = map(s.27, p.26)^(x.40*x.45*inv(x.39))
-    
-    29. gy    = x.38^(x.39*inv(x.40))
-        p     = p.26
-        s     = s.27
-        x     = (x.40*inv((x.39*x.45)))
-        z     = x.38^inv(x.45)
-        z.1   = map(s.27, p.26)^(x.40*inv((x.39*x.45)))
-    
-    30. gy    = x.39^inv((x.40*x.41))
+    15. gy    = x.41^x.42
         p     = p.27
         s     = s.28
-        x     = (x.40*x.46*inv(x.47))
-        z     = x.39^(x.46*inv((x.41*x.47)))
-        z.1   = map(s.28, p.27)^(x.40*x.46*inv(x.47))
+        x     = inv((x.42*x.47))
+        z     = x.41^inv(x.47)
+        z.1   = map(s.28, p.27)^inv((x.42*x.47))
     
-    31. gy    = x.39^(x.40*x.41)
+    16. gy    = x.41^x.42
         p     = p.27
         s     = s.28
-        x     = (x.46*inv((x.40*x.47)))
-        z     = x.39^(x.41*x.46*inv(x.47))
-        z.1   = map(s.28, p.27)^(x.46*inv((x.40*x.47)))
+        x     = (x.47*inv(x.42))
+        z     = x.41^x.47
+        z.1   = map(s.28, p.27)^(x.47*inv(x.42))
     
-    32. gy    = x.39^(x.40*x.41*inv(x.42))
+    17. gy    = x.41^inv(x.42)
         p     = p.27
         s     = s.28
-        x     = inv((x.40*x.47))
-        z     = x.39^(x.41*inv((x.42*x.47)))
-        z.1   = map(s.28, p.27)^inv((x.40*x.47))
+        x     = inv(x.47)
+        z     = x.41^inv((x.42*x.47))
+        z.1   = map(s.28, p.27)^inv(x.47)
     
-    33. gy    = x.39^(x.40*x.41*inv(x.42))
+    18. gy    = x.41^inv(x.42)
         p     = p.27
         s     = s.28
-        x     = (x.42*x.47*inv(x.40))
-        z     = x.39^(x.41*x.47)
-        z.1   = map(s.28, p.27)^(x.42*x.47*inv(x.40))
+        x     = (x.42*x.47)
+        z     = x.41^x.47
+        z.1   = map(s.28, p.27)^(x.42*x.47)
     
-    34. gy    = x.39^(x.40*x.41*inv(x.42))
-        p     = p.27
-        s     = s.28
-        x     = (x.42*inv((x.40*x.47)))
-        z     = x.39^(x.41*inv(x.47))
-        z.1   = map(s.28, p.27)^(x.42*inv((x.40*x.47)))
-    
-    35. gy    = x.39^(x.40*inv(x.41))
-        p     = p.27
-        s     = s.28
-        x     = (x.41*x.46*inv((x.40*x.47)))
-        z     = x.39^(x.46*inv(x.47))
-        z.1   = map(s.28, p.27)^(x.41*x.46*inv((x.40*x.47)))
-    
-    36. gy    = x.39^(x.40*inv(x.41))
-        p     = p.27
-        s     = s.28
-        x     = (x.46*inv(x.47))
-        z     = x.39^(x.40*x.46*inv((x.41*x.47)))
-        z.1   = map(s.28, p.27)^(x.46*inv(x.47))
-    
-    37. gy    = x.39^(x.40*inv(x.41))
-        p     = p.27
-        s     = s.28
-        x     = (x.46*inv((x.40*x.47)))
-        z     = x.39^(x.46*inv((x.41*x.47)))
-        z.1   = map(s.28, p.27)^(x.46*inv((x.40*x.47)))
-    
-    38. gy    = x.39^(x.40*inv((x.41*x.42)))
-        p     = p.27
-        s     = s.28
-        x     = (x.41*x.47)
-        z     = x.39^(x.40*x.47*inv(x.42))
-        z.1   = map(s.28, p.27)^(x.41*x.47)
-    
-    39. gy    = x.39^(x.40*inv((x.41*x.42)))
-        p     = p.27
-        s     = s.28
-        x     = (x.41*x.47*inv(x.40))
-        z     = x.39^(x.47*inv(x.42))
-        z.1   = map(s.28, p.27)^(x.41*x.47*inv(x.40))
-    
-    40. gy    = x.39^(x.40*inv((x.41*x.42)))
-        p     = p.27
-        s     = s.28
-        x     = (x.41*inv(x.47))
-        z     = x.39^(x.40*inv((x.42*x.47)))
-        z.1   = map(s.28, p.27)^(x.41*inv(x.47))
-    
-    41. gy    = x.39^(x.40*inv((x.41*x.42)))
-        p     = p.27
-        s     = s.28
-        x     = (x.41*inv((x.40*x.47)))
-        z     = x.39^inv((x.42*x.47))
-        z.1   = map(s.28, p.27)^(x.41*inv((x.40*x.47)))
-    
-    42. gy    = x.40^(x.41*x.42*inv(x.43))
+    19. gy    = x.42^x.43
         p     = p.28
         s     = s.29
-        x     = (x.43*x.48*inv((x.41*x.49)))
-        z     = x.40^(x.42*x.48*inv(x.49))
-        z.1   = map(s.29, p.28)^(x.43*x.48*inv((x.41*x.49)))
+        x     = (x.48*inv((x.43*x.49)))
+        z     = x.42^(x.48*inv(x.49))
+        z.1   = map(s.29, p.28)^(x.48*inv((x.43*x.49)))
     
-    43. gy    = x.40^(x.41*x.42*inv(x.43))
+    20. gy    = x.42^inv(x.43)
         p     = p.28
         s     = s.29
-        x     = (x.48*inv((x.41*x.49)))
-        z     = x.40^(x.42*x.48*inv((x.43*x.49)))
-        z.1   = map(s.29, p.28)^(x.48*inv((x.41*x.49)))
+        x     = (x.48*inv(x.49))
+        z     = x.42^(x.48*inv((x.43*x.49)))
+        z.1   = map(s.29, p.28)^(x.48*inv(x.49))
     
-    44. gy    = x.40^(x.41*x.42*inv((x.43*x.44)))
+    21. gy    = x.42^inv((x.43*x.44))
         p     = p.28
         s     = s.29
-        x     = (x.43*x.49*inv(x.41))
-        z     = x.40^(x.42*x.49*inv(x.44))
-        z.1   = map(s.29, p.28)^(x.43*x.49*inv(x.41))
+        x     = (x.43*x.49)
+        z     = x.42^(x.49*inv(x.44))
+        z.1   = map(s.29, p.28)^(x.43*x.49)
     
-    45. gy    = x.40^(x.41*x.42*inv((x.43*x.44)))
+    22. gy    = x.42^inv((x.43*x.44))
         p     = p.28
         s     = s.29
-        x     = (x.43*inv((x.41*x.49)))
-        z     = x.40^(x.42*inv((x.44*x.49)))
-        z.1   = map(s.29, p.28)^(x.43*inv((x.41*x.49)))
+        x     = (x.43*inv(x.49))
+        z     = x.42^inv((x.44*x.49))
+        z.1   = map(s.29, p.28)^(x.43*inv(x.49))
     
-    46. gy    = x.40^(x.41*inv((x.42*x.43)))
+    23. gy    = x.42^(x.43*x.44)
         p     = p.28
         s     = s.29
-        x     = (x.42*x.48*inv(x.49))
-        z     = x.40^(x.41*x.48*inv((x.43*x.49)))
-        z.1   = map(s.29, p.28)^(x.42*x.48*inv(x.49))
+        x     = inv((x.43*x.49))
+        z     = x.42^(x.44*inv(x.49))
+        z.1   = map(s.29, p.28)^inv((x.43*x.49))
     
-    47. gy    = x.40^(x.41*inv((x.42*x.43)))
+    24. gy    = x.42^(x.43*x.44)
         p     = p.28
         s     = s.29
-        x     = (x.42*x.48*inv((x.41*x.49)))
-        z     = x.40^(x.48*inv((x.43*x.49)))
-        z.1   = map(s.29, p.28)^(x.42*x.48*inv((x.41*x.49)))
+        x     = (x.49*inv(x.43))
+        z     = x.42^(x.44*x.49)
+        z.1   = map(s.29, p.28)^(x.49*inv(x.43))
     
-    48. gy    = x.41^(x.42*x.43*inv((x.44*x.45)))
+    25. gy    = x.42^(x.43*inv(x.44))
+        p     = p.28
+        s     = s.29
+        x     = inv(x.49)
+        z     = x.42^(x.43*inv((x.44*x.49)))
+        z.1   = map(s.29, p.28)^inv(x.49)
+    
+    26. gy    = x.42^(x.43*inv(x.44))
+        p     = p.28
+        s     = s.29
+        x     = inv((x.43*x.49))
+        z     = x.42^inv((x.44*x.49))
+        z.1   = map(s.29, p.28)^inv((x.43*x.49))
+    
+    27. gy    = x.42^(x.43*inv(x.44))
+        p     = p.28
+        s     = s.29
+        x     = (x.44*x.49)
+        z     = x.42^(x.43*x.49)
+        z.1   = map(s.29, p.28)^(x.44*x.49)
+    
+    28. gy    = x.42^(x.43*inv(x.44))
+        p     = p.28
+        s     = s.29
+        x     = (x.44*x.49*inv(x.43))
+        z     = x.42^x.49
+        z.1   = map(s.29, p.28)^(x.44*x.49*inv(x.43))
+    
+    29. gy    = x.42^(x.43*inv(x.44))
+        p     = p.28
+        s     = s.29
+        x     = (x.44*inv((x.43*x.49)))
+        z     = x.42^inv(x.49)
+        z.1   = map(s.29, p.28)^(x.44*inv((x.43*x.49)))
+    
+    30. gy    = x.43^inv((x.44*x.45))
         p     = p.29
         s     = s.30
-        x     = (x.44*x.50*inv((x.42*x.51)))
-        z     = x.41^(x.43*x.50*inv((x.45*x.51)))
-        z.1   = map(s.30, p.29)^(x.44*x.50*inv((x.42*x.51)))
+        x     = (x.44*x.50*inv(x.51))
+        z     = x.43^(x.50*inv((x.45*x.51)))
+        z.1   = map(s.30, p.29)^(x.44*x.50*inv(x.51))
+    
+    31. gy    = x.43^(x.44*x.45)
+        p     = p.29
+        s     = s.30
+        x     = (x.50*inv((x.44*x.51)))
+        z     = x.43^(x.45*x.50*inv(x.51))
+        z.1   = map(s.30, p.29)^(x.50*inv((x.44*x.51)))
+    
+    32. gy    = x.43^(x.44*x.45*inv(x.46))
+        p     = p.29
+        s     = s.30
+        x     = inv((x.44*x.51))
+        z     = x.43^(x.45*inv((x.46*x.51)))
+        z.1   = map(s.30, p.29)^inv((x.44*x.51))
+    
+    33. gy    = x.43^(x.44*x.45*inv(x.46))
+        p     = p.29
+        s     = s.30
+        x     = (x.46*x.51*inv(x.44))
+        z     = x.43^(x.45*x.51)
+        z.1   = map(s.30, p.29)^(x.46*x.51*inv(x.44))
+    
+    34. gy    = x.43^(x.44*x.45*inv(x.46))
+        p     = p.29
+        s     = s.30
+        x     = (x.46*inv((x.44*x.51)))
+        z     = x.43^(x.45*inv(x.51))
+        z.1   = map(s.30, p.29)^(x.46*inv((x.44*x.51)))
+    
+    35. gy    = x.43^(x.44*inv(x.45))
+        p     = p.29
+        s     = s.30
+        x     = (x.45*x.50*inv((x.44*x.51)))
+        z     = x.43^(x.50*inv(x.51))
+        z.1   = map(s.30, p.29)^(x.45*x.50*inv((x.44*x.51)))
+    
+    36. gy    = x.43^(x.44*inv(x.45))
+        p     = p.29
+        s     = s.30
+        x     = (x.50*inv(x.51))
+        z     = x.43^(x.44*x.50*inv((x.45*x.51)))
+        z.1   = map(s.30, p.29)^(x.50*inv(x.51))
+    
+    37. gy    = x.43^(x.44*inv(x.45))
+        p     = p.29
+        s     = s.30
+        x     = (x.50*inv((x.44*x.51)))
+        z     = x.43^(x.50*inv((x.45*x.51)))
+        z.1   = map(s.30, p.29)^(x.50*inv((x.44*x.51)))
+    
+    38. gy    = x.43^(x.44*inv((x.45*x.46)))
+        p     = p.29
+        s     = s.30
+        x     = (x.45*x.51)
+        z     = x.43^(x.44*x.51*inv(x.46))
+        z.1   = map(s.30, p.29)^(x.45*x.51)
+    
+    39. gy    = x.43^(x.44*inv((x.45*x.46)))
+        p     = p.29
+        s     = s.30
+        x     = (x.45*x.51*inv(x.44))
+        z     = x.43^(x.51*inv(x.46))
+        z.1   = map(s.30, p.29)^(x.45*x.51*inv(x.44))
+    
+    40. gy    = x.43^(x.44*inv((x.45*x.46)))
+        p     = p.29
+        s     = s.30
+        x     = (x.45*inv(x.51))
+        z     = x.43^(x.44*inv((x.46*x.51)))
+        z.1   = map(s.30, p.29)^(x.45*inv(x.51))
+    
+    41. gy    = x.43^(x.44*inv((x.45*x.46)))
+        p     = p.29
+        s     = s.30
+        x     = (x.45*inv((x.44*x.51)))
+        z     = x.43^inv((x.46*x.51))
+        z.1   = map(s.30, p.29)^(x.45*inv((x.44*x.51)))
+    
+    42. gy    = x.44^(x.45*x.46*inv(x.47))
+        p     = p.30
+        s     = s.31
+        x     = (x.47*x.52*inv((x.45*x.53)))
+        z     = x.44^(x.46*x.52*inv(x.53))
+        z.1   = map(s.31, p.30)^(x.47*x.52*inv((x.45*x.53)))
+    
+    43. gy    = x.44^(x.45*x.46*inv(x.47))
+        p     = p.30
+        s     = s.31
+        x     = (x.52*inv((x.45*x.53)))
+        z     = x.44^(x.46*x.52*inv((x.47*x.53)))
+        z.1   = map(s.31, p.30)^(x.52*inv((x.45*x.53)))
+    
+    44. gy    = x.44^(x.45*x.46*inv((x.47*x.48)))
+        p     = p.30
+        s     = s.31
+        x     = (x.47*x.53*inv(x.45))
+        z     = x.44^(x.46*x.53*inv(x.48))
+        z.1   = map(s.31, p.30)^(x.47*x.53*inv(x.45))
+    
+    45. gy    = x.44^(x.45*x.46*inv((x.47*x.48)))
+        p     = p.30
+        s     = s.31
+        x     = (x.47*inv((x.45*x.53)))
+        z     = x.44^(x.46*inv((x.48*x.53)))
+        z.1   = map(s.31, p.30)^(x.47*inv((x.45*x.53)))
+    
+    46. gy    = x.44^(x.45*inv((x.46*x.47)))
+        p     = p.30
+        s     = s.31
+        x     = (x.46*x.52*inv(x.53))
+        z     = x.44^(x.45*x.52*inv((x.47*x.53)))
+        z.1   = map(s.31, p.30)^(x.46*x.52*inv(x.53))
+    
+    47. gy    = x.44^(x.45*inv((x.46*x.47)))
+        p     = p.30
+        s     = s.31
+        x     = (x.46*x.52*inv((x.45*x.53)))
+        z     = x.44^(x.52*inv((x.47*x.53)))
+        z.1   = map(s.31, p.30)^(x.46*x.52*inv((x.45*x.53)))
+    
+    48. gy    = x.45^(x.46*x.47*inv((x.48*x.49)))
+        p     = p.31
+        s     = s.32
+        x     = (x.48*x.54*inv((x.46*x.55)))
+        z     = x.45^(x.47*x.54*inv((x.49*x.55)))
+        z.1   = map(s.32, p.31)^(x.48*x.54*inv((x.46*x.55)))
   */
 
 rule (modulo E) I_send3:
    [ St_I_3( A, id, B, kab, x, s, p, gy, k ) ]
   -->
-   [ St_I_4( A, id, B, kab, x, s, p, gy, k ), Out( tag(k, gy) ) ]
+   [ St_I_4( A, id, B, kab, x, s, p, gy, k ), Out( tag(k, <'I', gy>) )
+   ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_recv3:
    [ In( t ), St_R_3( B, id, A, kab, gx, s, p, y, k ) ]
-  --[ Eq( t, tag(k, map(s, p)^y) ) ]->
+  --[ Eq( t, tag(k, <'I', map(s, p)^y>) ) ]->
    [ St_R_4( B, id, A, kab, gx, s, p, y, k ) ]
 
   /*
   rule (modulo AC) R_recv3:
      [ In( t ), St_R_3( B, id, A, kab, gx, s, p, y, k ) ]
-    --[ Eq( t, tag(k, z) ) ]->
+    --[ Eq( t, tag(k, <'I', z>) ) ]->
      [ St_R_4( B, id, A, kab, gx, s, p, y, k ) ]
     variants (modulo AC)
-    1. p     = p.12
-       s     = s.12
-       y     = y.12
-       z     = map(s.12, p.12)^y.12
+    1. p     = p.14
+       s     = s.15
+       y     = y.17
+       z     = map(s.15, p.14)^y.17
     
-    2. p     = p.12
-       s     = s.12
+    2. p     = p.14
+       s     = s.15
        y     = one
-       z     = map(s.12, p.12)
+       z     = map(s.15, p.14)
   */
 
 rule (modulo E) R_send4:
@@ -502,13 +502,15 @@ rule (modulo E) R_send4:
   --[
   Commit( B, A, <'R', 'I', gx, map(s, p)^y, k> ), Secret( B, A, k )
   ]->
-   [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(k, gx) ) ]
+   [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(k, <'R', gx>) )
+   ]
 
   /*
   rule (modulo AC) R_send4:
      [ St_R_4( B, id, A, kab, gx, s, p, y, k ) ]
     --[ Commit( B, A, <'R', 'I', gx, z, k> ), Secret( B, A, k ) ]->
-     [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(k, gx) ) ]
+     [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(k, <'R', gx>) )
+     ]
     variants (modulo AC)
     1. p     = p.15
        s     = s.16
@@ -525,7 +527,7 @@ rule (modulo E) I_recv4:
    [ In( t ), St_I_4( A, id, B, kab, x, s, p, gy, k ) ]
   --[
   Commit( A, B, <'I', 'R', map(s, p)^x, gy, k> ), Secret( A, B, k ),
-  Finish( ), Eq( t, tag(k, map(s, p)^x) )
+  Finish( ), Eq( t, tag(k, <'R', map(s, p)^x>) )
   ]->
    [ St_I_5( A, id, B, kab, x, s, p, gy, k ) ]
 
@@ -534,7 +536,7 @@ rule (modulo E) I_recv4:
      [ In( t ), St_I_4( A, id, B, kab, x, s, p, gy, k ) ]
     --[
     Commit( A, B, <'I', 'R', z, gy, k> ), Secret( A, B, k ), Finish( ),
-    Eq( t, tag(k, z) )
+    Eq( t, tag(k, <'R', z>) )
     ]->
      [ St_I_5( A, id, B, kab, x, s, p, gy, k ) ]
     variants (modulo AC)
@@ -584,49 +586,34 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   case I_recv4
   solve( St_I_4( a, id, b, kab, x, s, p, gy, k ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(h(z), map(~s, ~p)^~x) ) @ #vk )
-      case I_send3
-      solve( !KU( map(~s, ~p)^~x.1 ) @ #vk.1 )
-        case I_send1_case_1
-        by contradiction /* from formulas */
-      next
-        case I_send1_case_2
-        by solve( !KU( ~x.1 ) @ #vk.4 )
-      next
-        case R_send2
-        by solve( !KU( ~x.1 ) @ #vk.4 )
-      next
-        case c_exp
-        by solve( !KU( ~x.1 ) @ #vk.4 )
-      qed
-    next
+    solve( !KU( tag(h(z), <'R', map(~s, ~p)^~x>) ) @ #vk )
       case R_send4
       solve( splitEqs(2) )
         case split_case_1
         solve( !KU( tag(h(map(~s, ~p)^(~x*~y)),
-                        map(sdec(c, h(~k.1)), p.1)^~y)
+                        <'I', map(sdec(c, h(~k.1)), p.1)^~y>)
                ) @ #vk.2 )
           case c_tag
           solve( !KU( h(map(~s, ~p)^(~x*~y)) ) @ #vk.8 )
             case c_h
-            solve( !KU( map(~s, ~p)^(~x*~y) ) @ #vk.10 )
+            solve( !KU( map(~s, ~p)^(~x*~y) ) @ #vk.12 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.11 )
+              by solve( !KU( ~y ) @ #vk.13 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x ) @ #vk.14 )
+              by solve( !KU( ~x ) @ #vk.16 )
             next
               case R_send2
-              by solve( !KU( ~y.1 ) @ #vk.14 )
+              by solve( !KU( ~y.1 ) @ #vk.16 )
             next
               case c_exp
-              by solve( !KU( ~x ) @ #vk.13 )
+              by solve( !KU( ~x ) @ #vk.15 )
             qed
           qed
         qed
       next
         case split_case_2
-        solve( !KU( tag(h(map(~s, ~p)^(~x*~y)), map(s.1, p.1)^~y)
+        solve( !KU( tag(h(map(~s, ~p)^(~x*~y)), <'I', map(s.1, p.1)^~y>)
                ) @ #vk.2 )
           case I_send3
           solve( !KU( senc(~s, h(~k.1)) ) @ #vk.7 )
@@ -672,21 +659,21 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           case c_tag
           solve( !KU( h(map(~s, ~p)^(~x*~y)) ) @ #vk.8 )
             case c_h
-            solve( !KU( map(~s, ~p)^(~x*~y) ) @ #vk.10 )
+            solve( !KU( map(~s, ~p)^(~x*~y) ) @ #vk.12 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.11 )
+              by solve( !KU( ~y ) @ #vk.13 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x ) @ #vk.14 )
+              by solve( !KU( ~x ) @ #vk.16 )
             next
               case R_send2_case_1
-              by solve( !KU( ~x ) @ #vk.10 )
+              by solve( !KU( ~x ) @ #vk.12 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.14 )
+              by solve( !KU( ~y.1 ) @ #vk.16 )
             next
               case c_exp
-              by solve( !KU( ~x ) @ #vk.13 )
+              by solve( !KU( ~x ) @ #vk.15 )
             qed
           qed
         qed
@@ -697,37 +684,37 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
         case split_case_1
         solve( !KU( z^inv(~x) ) @ #vk.1 )
           case I_send1_case_1
-          by solve( !KU( ~x.1 ) @ #vk.6 )
+          by solve( !KU( ~x.1 ) @ #vk.8 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.1 ) @ #vk.7 )
+          by solve( !KU( ~x.1 ) @ #vk.9 )
         next
           case R_send2_case_1
-          by solve( !KU( ~y ) @ #vk.6 )
+          by solve( !KU( ~y ) @ #vk.8 )
         next
           case R_send2_case_2
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case c_exp
-          by solve( !KU( ~x ) @ #vk.6 )
+          by solve( !KU( ~x ) @ #vk.8 )
         qed
       next
         case split_case_2
         solve( !KU( h(gy^~x) ) @ #vk.2 )
           case c_h
-          solve( !KU( gy^~x ) @ #vk.4 )
+          solve( !KU( gy^~x ) @ #vk.6 )
             case I_send1_case_1
             solve( !KU( map(~s, ~p) ) @ #vk.3 )
               case I_send1
-              by solve( !KU( ~x ) @ #vk.5 )
+              by solve( !KU( ~x ) @ #vk.7 )
             next
               case R_send2
-              by solve( !KU( ~y ) @ #vk.5 )
+              by solve( !KU( ~y ) @ #vk.7 )
             next
               case c_map
-              solve( !KU( ~s ) @ #vk.4 )
+              solve( !KU( ~s ) @ #vk.6 )
                 case I_send1
-                solve( !KU( ~k ) @ #vk.7 )
+                solve( !KU( ~k ) @ #vk.9 )
                   case Rev
                   by contradiction /* from formulas */
                 qed
@@ -735,67 +722,67 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
             qed
           next
             case I_send1_case_2
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case R_send2
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case c_exp
-            by solve( !KU( ~x ) @ #vk.5 )
+            by solve( !KU( ~x ) @ #vk.7 )
           qed
         qed
       next
         case split_case_3
         solve( !KU( h(x^(~x.1*x.2)) ) @ #vk.2 )
           case c_h
-          solve( !KU( x^(~x.1*x.2) ) @ #vk.4 )
+          solve( !KU( x^(~x.1*x.2) ) @ #vk.6 )
             case I_send1_case_1
-            by solve( !KU( ~x ) @ #vk.5 )
+            by solve( !KU( ~x ) @ #vk.7 )
           next
             case I_send1_case_2
             solve( !KU( map(~s, ~p)^x.1 ) @ #vk.3 )
               case I_send1_case_1
-              by contradiction /* from formulas */
+              by solve( !KU( ~x ) @ #vk.6 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x ) @ #vk.7 )
+              by solve( !KU( ~x ) @ #vk.9 )
             next
               case I_send1_case_3
-              by solve( !KU( ~x ) @ #vk.8 )
-            next
-              case I_send1_case_4
-              by solve( !KU( ~x ) @ #vk.8 )
-            next
-              case I_send1_case_5
               by solve( !KU( ~x ) @ #vk.10 )
             next
+              case I_send1_case_4
+              by solve( !KU( ~x ) @ #vk.10 )
+            next
+              case I_send1_case_5
+              by solve( !KU( ~x ) @ #vk.12 )
+            next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.5 )
+              by solve( !KU( ~y ) @ #vk.7 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y ) @ #vk.12 )
+              by solve( !KU( ~y ) @ #vk.14 )
             next
               case R_send2_case_3
-              by solve( !KU( ~y ) @ #vk.8 )
-            next
-              case R_send2_case_4
-              by solve( !KU( ~y ) @ #vk.8 )
-            next
-              case R_send2_case_5
               by solve( !KU( ~y ) @ #vk.10 )
             next
+              case R_send2_case_4
+              by solve( !KU( ~y ) @ #vk.10 )
+            next
+              case R_send2_case_5
+              by solve( !KU( ~y ) @ #vk.12 )
+            next
               case c_exp
-              solve( !KU( map(~s, ~p) ) @ #vk.6 )
+              solve( !KU( map(~s, ~p) ) @ #vk.8 )
                 case I_send1
-                by solve( !KU( ~x ) @ #vk.8 )
+                by solve( !KU( ~x ) @ #vk.10 )
               next
                 case R_send2
-                by solve( !KU( ~y ) @ #vk.8 )
+                by solve( !KU( ~y ) @ #vk.10 )
               next
                 case c_map
-                solve( !KU( ~s ) @ #vk.7 )
+                solve( !KU( ~s ) @ #vk.9 )
                   case I_send1
-                  solve( !KU( ~k ) @ #vk.10 )
+                  solve( !KU( ~k ) @ #vk.12 )
                     case Rev
                     by contradiction /* from formulas */
                   qed
@@ -804,113 +791,113 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
             qed
           next
             case I_send1_case_3
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case I_send1_case_4
-            by solve( !KU( ~x.2 ) @ #vk.8 )
+            by solve( !KU( ~x.2 ) @ #vk.10 )
           next
             case I_send1_case_5
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case I_send1_case_6
-            by solve( !KU( ~x.3 ) @ #vk.9 )
+            by solve( !KU( ~x.3 ) @ #vk.11 )
           next
             case R_send2_case_1
-            by solve( !KU( ~x ) @ #vk.5 )
+            by solve( !KU( ~x ) @ #vk.7 )
           next
             case R_send2_case_2
-            by solve( !KU( ~x ) @ #vk.11 )
+            by solve( !KU( ~x ) @ #vk.13 )
           next
             case R_send2_case_3
-            by solve( !KU( ~y ) @ #vk.8 )
+            by solve( !KU( ~y ) @ #vk.10 )
           next
             case R_send2_case_4
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case R_send2_case_5
-            by solve( !KU( ~y ) @ #vk.9 )
+            by solve( !KU( ~y ) @ #vk.11 )
           next
             case c_exp
-            by solve( !KU( ~x.1 ) @ #vk.7 )
+            by solve( !KU( ~x.1 ) @ #vk.9 )
           qed
         qed
       next
         case split_case_4
         solve( !KU( x^(x.1*inv(~x.2)) ) @ #vk.1 )
           case I_send1_case_1
-          by solve( !KU( ~x.1 ) @ #vk.5 )
+          by solve( !KU( ~x.1 ) @ #vk.7 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case I_send1_case_3
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case I_send1_case_4
-          by solve( !KU( ~x.2 ) @ #vk.8 )
+          by solve( !KU( ~x.2 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.1 ) @ #vk.10 )
-        next
-          case R_send2_case_2
           by solve( !KU( ~x.1 ) @ #vk.12 )
         next
+          case R_send2_case_2
+          by solve( !KU( ~x.1 ) @ #vk.14 )
+        next
           case R_send2_case_3
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case R_send2_case_4
-          by solve( !KU( ~y ) @ #vk.8 )
+          by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.8 )
+          by solve( !KU( ~x.2 ) @ #vk.10 )
         qed
       next
         case split_case_5
         solve( !KU( x^inv((x.1*~x.2)) ) @ #vk.1 )
           case I_send1_case_1
-          by solve( !KU( ~x.2 ) @ #vk.6 )
+          by solve( !KU( ~x.2 ) @ #vk.8 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case R_send2_case_1
-          by solve( !KU( ~y ) @ #vk.6 )
+          by solve( !KU( ~y ) @ #vk.8 )
         next
           case R_send2_case_2
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.8 )
+          by solve( !KU( ~x.2 ) @ #vk.10 )
         qed
       next
         case split_case_6
         solve( !KU( x^(x.1*inv((x.2*~x.3))) ) @ #vk.1 )
           case I_send1_case_1
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.3 ) @ #vk.9 )
+          by solve( !KU( ~x.3 ) @ #vk.11 )
         next
           case I_send1_case_3
-          by solve( !KU( ~x.3 ) @ #vk.7 )
+          by solve( !KU( ~x.3 ) @ #vk.9 )
         next
           case I_send1_case_4
-          by solve( !KU( ~x.3 ) @ #vk.8 )
+          by solve( !KU( ~x.3 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.2 ) @ #vk.12 )
-        next
-          case R_send2_case_2
           by solve( !KU( ~x.2 ) @ #vk.14 )
         next
+          case R_send2_case_2
+          by solve( !KU( ~x.2 ) @ #vk.16 )
+        next
           case R_send2_case_3
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case R_send2_case_4
-          by solve( !KU( ~y ) @ #vk.8 )
+          by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.3 ) @ #vk.10 )
+          by solve( !KU( ~x.3 ) @ #vk.12 )
         qed
       next
         case split_case_7
@@ -930,11 +917,11 @@ guarded formula characterizing all satisfying traces:
 simplify
 solve( St_I_4( A, id, B, kab, x, s, p, gy, k ) ▶₁ #i )
   case I_send3
-  solve( !KU( tag(h(z), map(~s, ~p)^~x) ) @ #vk )
+  solve( !KU( tag(h(z), <'R', map(~s, ~p)^~x>) ) @ #vk )
     case R_send4
     solve( splitEqs(2) )
       case split_case_2
-      solve( !KU( tag(h(map(~s, ~p)^(~x*~y)), map(s.1, p.1)^~y)
+      solve( !KU( tag(h(map(~s, ~p)^(~x*~y)), <'I', map(s.1, p.1)^~y>)
              ) @ #vk.2 )
         case I_send3
         solve( !KU( senc(~s, h(~k.1)) ) @ #vk.7 )
@@ -984,7 +971,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
     case R_recv3
     solve( splitEqs(1) )
       case split_case_1
-      solve( !KU( tag(h(z), map(sdec(c, h(~k)), p)^~y) ) @ #vk )
+      solve( !KU( tag(h(z), <'I', map(sdec(c, h(~k)), p)^~y>) ) @ #vk )
         case I_send3
         solve( !KU( map(sdec(c, h(~k)), p)^~x ) @ #vk.2 )
           case R_send2
@@ -994,99 +981,44 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           by solve( !KU( ~x ) @ #vk.8 )
         qed
       next
-        case R_send4
-        solve( splitEqs(4) )
-          case split_case_1
-          solve( !KU( tag(h(map(sdec(c, h(~k)), p)^(~y*~y.1)),
-                          map(s, p.1)^~y)
-                 ) @ #vk.6 )
-            case R_send4
-            by contradiction /* cyclic */
-          next
-            case c_tag
-            solve( !KU( h(map(sdec(c, h(~k)), p)^(~y*~y.1)) ) @ #vk.12 )
-              case c_h
-              solve( !KU( map(sdec(c, h(~k)), p)^(~y*~y.1) ) @ #vk.14 )
-                case R_send2_case_1
-                by solve( !KU( ~y ) @ #vk.15 )
-              next
-                case R_send2_case_2
-                by solve( !KU( ~y.1 ) @ #vk.13 )
-              next
-                case R_send2_case_3
-                by solve( !KU( ~y.2 ) @ #vk.19 )
-              next
-                case c_exp
-                by solve( !KU( ~y ) @ #vk.17 )
-              qed
-            qed
-          qed
-        next
-          case split_case_2
-          solve( !KU( tag(h(map(sdec(c, h(~k)), p)^(~y*~y.1)),
-                          map(sdec(c.1, h(~k.1)), p.1)^~y)
-                 ) @ #vk.6 )
-            case R_send4
-            by contradiction /* cyclic */
-          next
-            case c_tag
-            solve( !KU( h(map(sdec(c, h(~k)), p)^(~y*~y.1)) ) @ #vk.12 )
-              case c_h
-              solve( !KU( map(sdec(c, h(~k)), p)^(~y*~y.1) ) @ #vk.14 )
-                case R_send2_case_1
-                by solve( !KU( ~y ) @ #vk.15 )
-              next
-                case R_send2_case_2
-                by solve( !KU( ~y.1 ) @ #vk.11 )
-              next
-                case R_send2_case_3
-                by solve( !KU( ~y.2 ) @ #vk.19 )
-              next
-                case c_exp
-                by solve( !KU( ~y ) @ #vk.17 )
-              qed
-            qed
-          qed
-        qed
-      next
         case c_tag
         solve( splitEqs(2) )
           case split_case_1
           solve( !KU( z^inv(~y) ) @ #vk.2 )
             case I_send1_case_1
-            by solve( !KU( ~x ) @ #vk.10 )
+            by solve( !KU( ~x ) @ #vk.12 )
           next
             case I_send1_case_2
-            by solve( !KU( ~x ) @ #vk.11 )
+            by solve( !KU( ~x ) @ #vk.13 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y.1 ) @ #vk.10 )
+            by solve( !KU( ~y.1 ) @ #vk.12 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.10 )
+            by solve( !KU( ~y ) @ #vk.12 )
           qed
         next
           case split_case_2
           solve( !KU( h(gx^~y) ) @ #vk.6 )
             case c_h
-            solve( !KU( gx^~y ) @ #vk.8 )
+            solve( !KU( gx^~y ) @ #vk.10 )
               case I_send1
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case R_send2_case_1
               solve( !KU( map(sdec(c, h(~k)), p) ) @ #vk.4 )
                 case R_send2
-                by solve( !KU( ~y.1 ) @ #vk.10 )
+                by solve( !KU( ~y.1 ) @ #vk.12 )
               next
                 case c_map
-                solve( !KU( sdec(c, h(~k)) ) @ #vk.8 )
+                solve( !KU( sdec(c, h(~k)) ) @ #vk.10 )
                   case c_sdec
-                  solve( !KU( h(~k) ) @ #vk.9 )
+                  solve( !KU( h(~k) ) @ #vk.11 )
                     case c_h
-                    solve( !KU( ~k ) @ #vk.10 )
+                    solve( !KU( ~k ) @ #vk.12 )
                       case Rev
                       by contradiction /* from formulas */
                     qed
@@ -1095,63 +1027,63 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
               qed
             next
               case R_send2_case_2
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.9 )
+              by solve( !KU( ~y ) @ #vk.11 )
             qed
           qed
         next
           case split_case_3
           solve( !KU( h(x^(~y*x.1)) ) @ #vk.6 )
             case c_h
-            solve( !KU( x^(~y*x.1) ) @ #vk.8 )
+            solve( !KU( x^(~y*x.1) ) @ #vk.10 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.9 )
+              by solve( !KU( ~y ) @ #vk.11 )
             next
               case I_send1_case_2
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case I_send1_case_3
-              by solve( !KU( ~x.1 ) @ #vk.12 )
+              by solve( !KU( ~x.1 ) @ #vk.14 )
             next
               case I_send1_case_4
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case I_send1_case_5
-              by solve( !KU( ~x.2 ) @ #vk.13 )
+              by solve( !KU( ~x.2 ) @ #vk.15 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.9 )
+              by solve( !KU( ~y ) @ #vk.11 )
             next
               case R_send2_case_2
               solve( !KU( map(sdec(c, h(~k)), p)^x ) @ #vk.4 )
                 case R_send2_case_1
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case R_send2_case_2
-                by solve( !KU( ~y ) @ #vk.15 )
+                by solve( !KU( ~y ) @ #vk.17 )
               next
                 case R_send2_case_3
-                by solve( !KU( ~y.1 ) @ #vk.13 )
-              next
-                case R_send2_case_4
-                by solve( !KU( ~y.1 ) @ #vk.13 )
-              next
-                case R_send2_case_5
                 by solve( !KU( ~y.1 ) @ #vk.15 )
               next
+                case R_send2_case_4
+                by solve( !KU( ~y.1 ) @ #vk.15 )
+              next
+                case R_send2_case_5
+                by solve( !KU( ~y.1 ) @ #vk.17 )
+              next
                 case c_exp
-                solve( !KU( map(sdec(c, h(~k)), p) ) @ #vk.10 )
+                solve( !KU( map(sdec(c, h(~k)), p) ) @ #vk.12 )
                   case R_send2
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
+                  by solve( !KU( ~y.1 ) @ #vk.15 )
                 next
                   case c_map
-                  solve( !KU( sdec(c, h(~k)) ) @ #vk.11 )
+                  solve( !KU( sdec(c, h(~k)) ) @ #vk.13 )
                     case c_sdec
-                    solve( !KU( h(~k) ) @ #vk.12 )
+                    solve( !KU( h(~k) ) @ #vk.14 )
                       case c_h
-                      solve( !KU( ~k ) @ #vk.13 )
+                      solve( !KU( ~k ) @ #vk.15 )
                         case Rev
                         by contradiction /* from formulas */
                       qed
@@ -1161,98 +1093,98 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
               qed
             next
               case R_send2_case_3
-              by solve( !KU( ~y.1 ) @ #vk.15 )
+              by solve( !KU( ~y.1 ) @ #vk.17 )
             next
               case R_send2_case_4
-              by solve( !KU( ~y.1 ) @ #vk.12 )
+              by solve( !KU( ~y.1 ) @ #vk.14 )
             next
               case R_send2_case_5
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case R_send2_case_6
-              by solve( !KU( ~y.1 ) @ #vk.13 )
+              by solve( !KU( ~y.1 ) @ #vk.15 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.11 )
+              by solve( !KU( ~y ) @ #vk.13 )
             qed
           qed
         next
           case split_case_4
           solve( !KU( x^inv((~y*x.1)) ) @ #vk.2 )
             case I_send1_case_1
-            by solve( !KU( ~x.1 ) @ #vk.10 )
+            by solve( !KU( ~x.1 ) @ #vk.12 )
           next
             case I_send1_case_2
-            by solve( !KU( ~x.1 ) @ #vk.11 )
+            by solve( !KU( ~x.1 ) @ #vk.13 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y.1 ) @ #vk.10 )
+            by solve( !KU( ~y.1 ) @ #vk.12 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.11 )
+            by solve( !KU( ~y ) @ #vk.13 )
           qed
         next
           case split_case_5
           solve( !KU( x^(x.1*inv(~y)) ) @ #vk.2 )
             case I_send1_case_1
-            by solve( !KU( ~y ) @ #vk.9 )
-          next
-            case I_send1_case_2
             by solve( !KU( ~y ) @ #vk.11 )
           next
+            case I_send1_case_2
+            by solve( !KU( ~y ) @ #vk.13 )
+          next
             case I_send1_case_3
-            by solve( !KU( ~x.1 ) @ #vk.11 )
+            by solve( !KU( ~x.1 ) @ #vk.13 )
           next
             case I_send1_case_4
-            by solve( !KU( ~x.1 ) @ #vk.12 )
+            by solve( !KU( ~x.1 ) @ #vk.14 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y ) @ #vk.14 )
+            by solve( !KU( ~y ) @ #vk.16 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.16 )
+            by solve( !KU( ~y.1 ) @ #vk.18 )
           next
             case R_send2_case_3
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case R_send2_case_4
-            by solve( !KU( ~y.1 ) @ #vk.12 )
+            by solve( !KU( ~y.1 ) @ #vk.14 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.12 )
+            by solve( !KU( ~y ) @ #vk.14 )
           qed
         next
           case split_case_6
           solve( !KU( x^(x.1*inv((~y*x.2))) ) @ #vk.2 )
             case I_send1_case_1
-            by solve( !KU( ~y ) @ #vk.10 )
-          next
-            case I_send1_case_2
             by solve( !KU( ~y ) @ #vk.12 )
           next
+            case I_send1_case_2
+            by solve( !KU( ~y ) @ #vk.14 )
+          next
             case I_send1_case_3
-            by solve( !KU( ~x.2 ) @ #vk.11 )
+            by solve( !KU( ~x.2 ) @ #vk.13 )
           next
             case I_send1_case_4
-            by solve( !KU( ~x.2 ) @ #vk.12 )
+            by solve( !KU( ~x.2 ) @ #vk.14 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y ) @ #vk.15 )
+            by solve( !KU( ~y ) @ #vk.17 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.17 )
+            by solve( !KU( ~y.1 ) @ #vk.19 )
           next
             case R_send2_case_3
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case R_send2_case_4
-            by solve( !KU( ~y.1 ) @ #vk.12 )
+            by solve( !KU( ~y.1 ) @ #vk.14 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.13 )
+            by solve( !KU( ~y ) @ #vk.15 )
           qed
         next
           case split_case_7
@@ -1261,7 +1193,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
       qed
     next
       case split_case_2
-      solve( !KU( tag(h(z), map(s, p)^~y) ) @ #vk )
+      solve( !KU( tag(h(z), <'I', map(s, p)^~y>) ) @ #vk )
         case I_send3
         solve( !KU( senc(s, h(~k)) ) @ #vk.5 )
           case I_send1
@@ -1315,84 +1247,6 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           qed
         qed
       next
-        case R_send4
-        solve( splitEqs(4) )
-          case split_case_1
-          solve( !KU( senc(s, h(~k)) ) @ #vk.5 )
-            case I_send1
-            solve( !KU( tag(h(map(~s, p)^(~y*~y.1)),
-                            map(sdec(c, h(~k.1)), p.1)^~y)
-                   ) @ #vk.6 )
-              case c_tag
-              solve( !KU( h(map(~s, p)^(~y*~y.1)) ) @ #vk.12 )
-                case c_h
-                solve( !KU( map(~s, p)^(~y*~y.1) ) @ #vk.14 )
-                  case I_send1
-                  by solve( !KU( ~x ) @ #vk.18 )
-                next
-                  case R_send2_case_1
-                  by solve( !KU( ~y ) @ #vk.15 )
-                next
-                  case R_send2_case_2
-                  by solve( !KU( ~y.2 ) @ #vk.19 )
-                next
-                  case c_exp
-                  by solve( !KU( ~y ) @ #vk.17 )
-                qed
-              qed
-            qed
-          next
-            case c_senc
-            solve( !KU( h(~k) ) @ #vk.13 )
-              case c_h
-              solve( !KU( ~k ) @ #vk.14 )
-                case Rev
-                by contradiction /* from formulas */
-              qed
-            qed
-          qed
-        next
-          case split_case_2
-          solve( !KU( senc(s, h(~k)) ) @ #vk.5 )
-            case I_send1
-            solve( !KU( tag(h(map(~s, p)^(~y*~y.1)), map(s.1, p.1)^~y)
-                   ) @ #vk.6 )
-              case R_send4
-              by contradiction /* cyclic */
-            next
-              case c_tag
-              solve( !KU( h(map(~s, p)^(~y*~y.1)) ) @ #vk.12 )
-                case c_h
-                solve( !KU( map(~s, p)^(~y*~y.1) ) @ #vk.14 )
-                  case I_send1
-                  by solve( !KU( ~x ) @ #vk.18 )
-                next
-                  case R_send2_case_1
-                  by solve( !KU( ~y ) @ #vk.15 )
-                next
-                  case R_send2_case_2
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
-                next
-                  case R_send2_case_3
-                  by solve( !KU( ~y.2 ) @ #vk.19 )
-                next
-                  case c_exp
-                  by solve( !KU( ~y ) @ #vk.17 )
-                qed
-              qed
-            qed
-          next
-            case c_senc
-            solve( !KU( h(~k) ) @ #vk.13 )
-              case c_h
-              solve( !KU( ~k ) @ #vk.14 )
-                case Rev
-                by contradiction /* from formulas */
-              qed
-            qed
-          qed
-        qed
-      next
         case c_tag
         solve( !KU( senc(s, h(~k)) ) @ #vk.5 )
           case I_send1
@@ -1400,22 +1254,22 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
             case split_case_1
             solve( !KU( h(gx^~y) ) @ #vk.6 )
               case c_h
-              solve( !KU( gx^~y ) @ #vk.8 )
+              solve( !KU( gx^~y ) @ #vk.10 )
                 case I_send1
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case R_send2_case_1
                 solve( !KU( map(~s, p) ) @ #vk.6 )
                   case I_send1
-                  by solve( !KU( ~x ) @ #vk.9 )
+                  by solve( !KU( ~x ) @ #vk.11 )
                 next
                   case R_send2
-                  by solve( !KU( ~y.1 ) @ #vk.10 )
+                  by solve( !KU( ~y.1 ) @ #vk.12 )
                 next
                   case c_map
-                  solve( !KU( ~s ) @ #vk.8 )
+                  solve( !KU( ~s ) @ #vk.10 )
                     case I_send1
-                    solve( !KU( ~k ) @ #vk.10 )
+                    solve( !KU( ~k ) @ #vk.12 )
                       case Rev
                       by contradiction /* from formulas */
                     qed
@@ -1423,97 +1277,97 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
                 qed
               next
                 case R_send2_case_2
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case c_exp
-                by solve( !KU( ~y ) @ #vk.9 )
+                by solve( !KU( ~y ) @ #vk.11 )
               qed
             qed
           next
             case split_case_2
             solve( !KU( z^inv(~y) ) @ #vk.4 )
               case I_send1_case_1
-              by solve( !KU( ~x.1 ) @ #vk.10 )
+              by solve( !KU( ~x.1 ) @ #vk.12 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x.1 ) @ #vk.11 )
+              by solve( !KU( ~x.1 ) @ #vk.13 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y.1 ) @ #vk.10 )
+              by solve( !KU( ~y.1 ) @ #vk.12 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             qed
           next
             case split_case_3
             solve( !KU( h(x^(~y*x.1)) ) @ #vk.6 )
               case c_h
-              solve( !KU( x^(~y*x.1) ) @ #vk.8 )
+              solve( !KU( x^(~y*x.1) ) @ #vk.10 )
                 case I_send1_case_1
-                by solve( !KU( ~y ) @ #vk.9 )
+                by solve( !KU( ~y ) @ #vk.11 )
               next
                 case I_send1_case_2
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case I_send1_case_3
-                by solve( !KU( ~x.2 ) @ #vk.12 )
+                by solve( !KU( ~x.2 ) @ #vk.14 )
               next
                 case I_send1_case_4
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case I_send1_case_5
-                by solve( !KU( ~x.3 ) @ #vk.13 )
+                by solve( !KU( ~x.3 ) @ #vk.15 )
               next
                 case R_send2_case_1
-                by solve( !KU( ~y ) @ #vk.9 )
+                by solve( !KU( ~y ) @ #vk.11 )
               next
                 case R_send2_case_2
                 solve( !KU( map(~s, p)^x ) @ #vk.6 )
                   case I_send1_case_1
-                  by solve( !KU( ~x ) @ #vk.9 )
-                next
-                  case I_send1_case_2
                   by solve( !KU( ~x ) @ #vk.11 )
                 next
+                  case I_send1_case_2
+                  by solve( !KU( ~x ) @ #vk.13 )
+                next
                   case I_send1_case_3
-                  by solve( !KU( ~x.1 ) @ #vk.12 )
+                  by solve( !KU( ~x.1 ) @ #vk.14 )
                 next
                   case I_send1_case_4
-                  by solve( !KU( ~x.1 ) @ #vk.12 )
+                  by solve( !KU( ~x.1 ) @ #vk.14 )
                 next
                   case I_send1_case_5
-                  by solve( !KU( ~x.2 ) @ #vk.14 )
+                  by solve( !KU( ~x.2 ) @ #vk.16 )
                 next
                   case R_send2_case_1
-                  by solve( !KU( ~y ) @ #vk.10 )
+                  by solve( !KU( ~y ) @ #vk.12 )
                 next
                   case R_send2_case_2
-                  by solve( !KU( ~y ) @ #vk.15 )
+                  by solve( !KU( ~y ) @ #vk.17 )
                 next
                   case R_send2_case_3
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
-                next
-                  case R_send2_case_4
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
-                next
-                  case R_send2_case_5
                   by solve( !KU( ~y.1 ) @ #vk.15 )
                 next
+                  case R_send2_case_4
+                  by solve( !KU( ~y.1 ) @ #vk.15 )
+                next
+                  case R_send2_case_5
+                  by solve( !KU( ~y.1 ) @ #vk.17 )
+                next
                   case c_exp
-                  solve( !KU( map(~s, p) ) @ #vk.10 )
+                  solve( !KU( map(~s, p) ) @ #vk.12 )
                     case I_send1
-                    by solve( !KU( ~x.1 ) @ #vk.12 )
+                    by solve( !KU( ~x.1 ) @ #vk.14 )
                   next
                     case R_send2
-                    by solve( !KU( ~y.1 ) @ #vk.13 )
+                    by solve( !KU( ~y.1 ) @ #vk.15 )
                   next
                     case c_map
-                    solve( !KU( ~s ) @ #vk.11 )
+                    solve( !KU( ~s ) @ #vk.13 )
                       case I_send1
-                      solve( !KU( ~k ) @ #vk.13 )
+                      solve( !KU( ~k ) @ #vk.15 )
                         case Rev
                         by contradiction /* from formulas */
                       qed
@@ -1522,98 +1376,98 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
                 qed
               next
                 case R_send2_case_3
-                by solve( !KU( ~y.1 ) @ #vk.15 )
+                by solve( !KU( ~y.1 ) @ #vk.17 )
               next
                 case R_send2_case_4
-                by solve( !KU( ~y.1 ) @ #vk.12 )
+                by solve( !KU( ~y.1 ) @ #vk.14 )
               next
                 case R_send2_case_5
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case R_send2_case_6
-                by solve( !KU( ~y.1 ) @ #vk.13 )
+                by solve( !KU( ~y.1 ) @ #vk.15 )
               next
                 case c_exp
-                by solve( !KU( ~y ) @ #vk.11 )
+                by solve( !KU( ~y ) @ #vk.13 )
               qed
             qed
           next
             case split_case_4
             solve( !KU( x^inv((~y*x.1)) ) @ #vk.4 )
               case I_send1_case_1
-              by solve( !KU( ~x.2 ) @ #vk.10 )
+              by solve( !KU( ~x.2 ) @ #vk.12 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x.2 ) @ #vk.11 )
+              by solve( !KU( ~x.2 ) @ #vk.13 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y.1 ) @ #vk.10 )
+              by solve( !KU( ~y.1 ) @ #vk.12 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.11 )
+              by solve( !KU( ~y ) @ #vk.13 )
             qed
           next
             case split_case_5
             solve( !KU( x^(x.1*inv(~y)) ) @ #vk.4 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.9 )
-            next
-              case I_send1_case_2
               by solve( !KU( ~y ) @ #vk.11 )
             next
+              case I_send1_case_2
+              by solve( !KU( ~y ) @ #vk.13 )
+            next
               case I_send1_case_3
-              by solve( !KU( ~x.2 ) @ #vk.11 )
+              by solve( !KU( ~x.2 ) @ #vk.13 )
             next
               case I_send1_case_4
-              by solve( !KU( ~x.2 ) @ #vk.12 )
+              by solve( !KU( ~x.2 ) @ #vk.14 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.14 )
+              by solve( !KU( ~y ) @ #vk.16 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.16 )
+              by solve( !KU( ~y.1 ) @ #vk.18 )
             next
               case R_send2_case_3
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case R_send2_case_4
-              by solve( !KU( ~y.1 ) @ #vk.12 )
+              by solve( !KU( ~y.1 ) @ #vk.14 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.12 )
+              by solve( !KU( ~y ) @ #vk.14 )
             qed
           next
             case split_case_6
             solve( !KU( x^(x.1*inv((~y*x.2))) ) @ #vk.4 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.10 )
-            next
-              case I_send1_case_2
               by solve( !KU( ~y ) @ #vk.12 )
             next
+              case I_send1_case_2
+              by solve( !KU( ~y ) @ #vk.14 )
+            next
               case I_send1_case_3
-              by solve( !KU( ~x.3 ) @ #vk.11 )
+              by solve( !KU( ~x.3 ) @ #vk.13 )
             next
               case I_send1_case_4
-              by solve( !KU( ~x.3 ) @ #vk.12 )
+              by solve( !KU( ~x.3 ) @ #vk.14 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.15 )
+              by solve( !KU( ~y ) @ #vk.17 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.17 )
+              by solve( !KU( ~y.1 ) @ #vk.19 )
             next
               case R_send2_case_3
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case R_send2_case_4
-              by solve( !KU( ~y.1 ) @ #vk.12 )
+              by solve( !KU( ~y.1 ) @ #vk.14 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.13 )
+              by solve( !KU( ~y ) @ #vk.15 )
             qed
           next
             case split_case_7
@@ -1621,9 +1475,9 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           qed
         next
           case c_senc
-          solve( !KU( h(~k) ) @ #vk.9 )
+          solve( !KU( h(~k) ) @ #vk.11 )
             case c_h
-            solve( !KU( ~k ) @ #vk.10 )
+            solve( !KU( ~k ) @ #vk.12 )
               case Rev
               by contradiction /* from formulas */
             qed
@@ -1655,28 +1509,7 @@ solve( Secret( A, B, x ) @ #i )
   case I_recv4
   solve( St_I_4( A, id, B, kab, x.1, s, p, gy, x ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(h(z), map(~s, ~p)^~x) ) @ #vk.1 )
-      case I_send3
-      solve( !KU( h(map(~s, ~p)^(~x*~x.1)) ) @ #vk.1 )
-        case c_h
-        solve( !KU( map(~s, ~p)^(~x*~x.1) ) @ #vk.4 )
-          case I_send1_case_1
-          by contradiction /* from formulas */
-        next
-          case I_send1_case_2
-          by solve( !KU( ~x.1 ) @ #vk.5 )
-        next
-          case I_send1_case_3
-          by solve( !KU( ~x ) @ #vk.8 )
-        next
-          case R_send2
-          by solve( !KU( ~y ) @ #vk.8 )
-        next
-          case c_exp
-          by solve( !KU( ~x ) @ #vk.7 )
-        qed
-      qed
-    next
+    solve( !KU( tag(h(z), <'R', map(~s, ~p)^~x>) ) @ #vk.1 )
       case R_send4
       solve( splitEqs(2) )
         case split_case_1
@@ -1724,37 +1557,37 @@ solve( Secret( A, B, x ) @ #i )
         case split_case_1
         solve( !KU( z^inv(~x) ) @ #vk.2 )
           case I_send1_case_1
-          by solve( !KU( ~x.1 ) @ #vk.6 )
+          by solve( !KU( ~x.1 ) @ #vk.8 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.1 ) @ #vk.7 )
+          by solve( !KU( ~x.1 ) @ #vk.9 )
         next
           case R_send2_case_1
-          by solve( !KU( ~y ) @ #vk.6 )
+          by solve( !KU( ~y ) @ #vk.8 )
         next
           case R_send2_case_2
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case c_exp
-          by solve( !KU( ~x ) @ #vk.6 )
+          by solve( !KU( ~x ) @ #vk.8 )
         qed
       next
         case split_case_2
         solve( !KU( h(gy^~x) ) @ #vk.1 )
           case c_h
-          solve( !KU( gy^~x ) @ #vk.4 )
+          solve( !KU( gy^~x ) @ #vk.6 )
             case I_send1_case_1
             solve( !KU( map(~s, ~p) ) @ #vk.3 )
               case I_send1
-              by solve( !KU( ~x ) @ #vk.5 )
+              by solve( !KU( ~x ) @ #vk.7 )
             next
               case R_send2
-              by solve( !KU( ~y ) @ #vk.5 )
+              by solve( !KU( ~y ) @ #vk.7 )
             next
               case c_map
-              solve( !KU( ~s ) @ #vk.4 )
+              solve( !KU( ~s ) @ #vk.6 )
                 case I_send1
-                solve( !KU( ~k ) @ #vk.7 )
+                solve( !KU( ~k ) @ #vk.9 )
                   case Rev
                   by contradiction /* from formulas */
                 qed
@@ -1762,67 +1595,67 @@ solve( Secret( A, B, x ) @ #i )
             qed
           next
             case I_send1_case_2
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case R_send2
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case c_exp
-            by solve( !KU( ~x ) @ #vk.5 )
+            by solve( !KU( ~x ) @ #vk.7 )
           qed
         qed
       next
         case split_case_3
         solve( !KU( h(x^(~x.1*x.2)) ) @ #vk.1 )
           case c_h
-          solve( !KU( x^(~x.1*x.2) ) @ #vk.4 )
+          solve( !KU( x^(~x.1*x.2) ) @ #vk.6 )
             case I_send1_case_1
-            by solve( !KU( ~x ) @ #vk.5 )
+            by solve( !KU( ~x ) @ #vk.7 )
           next
             case I_send1_case_2
             solve( !KU( map(~s, ~p)^x.1 ) @ #vk.3 )
               case I_send1_case_1
-              by contradiction /* from formulas */
+              by solve( !KU( ~x ) @ #vk.6 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x ) @ #vk.7 )
+              by solve( !KU( ~x ) @ #vk.9 )
             next
               case I_send1_case_3
-              by solve( !KU( ~x ) @ #vk.8 )
-            next
-              case I_send1_case_4
-              by solve( !KU( ~x ) @ #vk.8 )
-            next
-              case I_send1_case_5
               by solve( !KU( ~x ) @ #vk.10 )
             next
+              case I_send1_case_4
+              by solve( !KU( ~x ) @ #vk.10 )
+            next
+              case I_send1_case_5
+              by solve( !KU( ~x ) @ #vk.12 )
+            next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.5 )
+              by solve( !KU( ~y ) @ #vk.7 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y ) @ #vk.12 )
+              by solve( !KU( ~y ) @ #vk.14 )
             next
               case R_send2_case_3
-              by solve( !KU( ~y ) @ #vk.8 )
-            next
-              case R_send2_case_4
-              by solve( !KU( ~y ) @ #vk.8 )
-            next
-              case R_send2_case_5
               by solve( !KU( ~y ) @ #vk.10 )
             next
+              case R_send2_case_4
+              by solve( !KU( ~y ) @ #vk.10 )
+            next
+              case R_send2_case_5
+              by solve( !KU( ~y ) @ #vk.12 )
+            next
               case c_exp
-              solve( !KU( map(~s, ~p) ) @ #vk.6 )
+              solve( !KU( map(~s, ~p) ) @ #vk.8 )
                 case I_send1
-                by solve( !KU( ~x ) @ #vk.8 )
+                by solve( !KU( ~x ) @ #vk.10 )
               next
                 case R_send2
-                by solve( !KU( ~y ) @ #vk.8 )
+                by solve( !KU( ~y ) @ #vk.10 )
               next
                 case c_map
-                solve( !KU( ~s ) @ #vk.7 )
+                solve( !KU( ~s ) @ #vk.9 )
                   case I_send1
-                  solve( !KU( ~k ) @ #vk.10 )
+                  solve( !KU( ~k ) @ #vk.12 )
                     case Rev
                     by contradiction /* from formulas */
                   qed
@@ -1831,113 +1664,113 @@ solve( Secret( A, B, x ) @ #i )
             qed
           next
             case I_send1_case_3
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case I_send1_case_4
-            by solve( !KU( ~x.2 ) @ #vk.8 )
+            by solve( !KU( ~x.2 ) @ #vk.10 )
           next
             case I_send1_case_5
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case I_send1_case_6
-            by solve( !KU( ~x.3 ) @ #vk.9 )
+            by solve( !KU( ~x.3 ) @ #vk.11 )
           next
             case R_send2_case_1
-            by solve( !KU( ~x ) @ #vk.5 )
+            by solve( !KU( ~x ) @ #vk.7 )
           next
             case R_send2_case_2
-            by solve( !KU( ~x ) @ #vk.11 )
+            by solve( !KU( ~x ) @ #vk.13 )
           next
             case R_send2_case_3
-            by solve( !KU( ~y ) @ #vk.8 )
+            by solve( !KU( ~y ) @ #vk.10 )
           next
             case R_send2_case_4
-            by solve( !KU( ~x ) @ #vk.6 )
+            by solve( !KU( ~x ) @ #vk.8 )
           next
             case R_send2_case_5
-            by solve( !KU( ~y ) @ #vk.9 )
+            by solve( !KU( ~y ) @ #vk.11 )
           next
             case c_exp
-            by solve( !KU( ~x.1 ) @ #vk.7 )
+            by solve( !KU( ~x.1 ) @ #vk.9 )
           qed
         qed
       next
         case split_case_4
         solve( !KU( x^(x.1*inv(~x.2)) ) @ #vk.2 )
           case I_send1_case_1
-          by solve( !KU( ~x.1 ) @ #vk.5 )
+          by solve( !KU( ~x.1 ) @ #vk.7 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case I_send1_case_3
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case I_send1_case_4
-          by solve( !KU( ~x.2 ) @ #vk.8 )
+          by solve( !KU( ~x.2 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.1 ) @ #vk.10 )
-        next
-          case R_send2_case_2
           by solve( !KU( ~x.1 ) @ #vk.12 )
         next
+          case R_send2_case_2
+          by solve( !KU( ~x.1 ) @ #vk.14 )
+        next
           case R_send2_case_3
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case R_send2_case_4
-          by solve( !KU( ~y ) @ #vk.8 )
+          by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.8 )
+          by solve( !KU( ~x.2 ) @ #vk.10 )
         qed
       next
         case split_case_5
         solve( !KU( x^inv((x.1*~x.2)) ) @ #vk.2 )
           case I_send1_case_1
-          by solve( !KU( ~x.2 ) @ #vk.6 )
+          by solve( !KU( ~x.2 ) @ #vk.8 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case R_send2_case_1
-          by solve( !KU( ~y ) @ #vk.6 )
+          by solve( !KU( ~y ) @ #vk.8 )
         next
           case R_send2_case_2
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.8 )
+          by solve( !KU( ~x.2 ) @ #vk.10 )
         qed
       next
         case split_case_6
         solve( !KU( x^(x.1*inv((x.2*~x.3))) ) @ #vk.2 )
           case I_send1_case_1
-          by solve( !KU( ~x.2 ) @ #vk.7 )
+          by solve( !KU( ~x.2 ) @ #vk.9 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.3 ) @ #vk.9 )
+          by solve( !KU( ~x.3 ) @ #vk.11 )
         next
           case I_send1_case_3
-          by solve( !KU( ~x.3 ) @ #vk.7 )
+          by solve( !KU( ~x.3 ) @ #vk.9 )
         next
           case I_send1_case_4
-          by solve( !KU( ~x.3 ) @ #vk.8 )
+          by solve( !KU( ~x.3 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.2 ) @ #vk.12 )
-        next
-          case R_send2_case_2
           by solve( !KU( ~x.2 ) @ #vk.14 )
         next
+          case R_send2_case_2
+          by solve( !KU( ~x.2 ) @ #vk.16 )
+        next
           case R_send2_case_3
-          by solve( !KU( ~y ) @ #vk.7 )
+          by solve( !KU( ~y ) @ #vk.9 )
         next
           case R_send2_case_4
-          by solve( !KU( ~y ) @ #vk.8 )
+          by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.3 ) @ #vk.10 )
+          by solve( !KU( ~x.3 ) @ #vk.12 )
         qed
       next
         case split_case_7
@@ -1951,7 +1784,7 @@ next
     case R_recv3
     solve( splitEqs(1) )
       case split_case_1
-      solve( !KU( tag(h(z), map(sdec(c, h(~k)), p)^~y) ) @ #vk.1 )
+      solve( !KU( tag(h(z), <'I', map(sdec(c, h(~k)), p)^~y>) ) @ #vk.1 )
         case I_send3
         solve( !KU( h(map(sdec(c, h(~k)), p)^(~x*~y)) ) @ #vk.1 )
           case c_h
@@ -1967,65 +1800,26 @@ next
           qed
         qed
       next
-        case R_send4
-        solve( splitEqs(4) )
-          case split_case_1
-          solve( !KU( h(map(sdec(c, h(~k)), p)^(~y*~y.1)) ) @ #vk.1 )
-            case c_h
-            solve( !KU( map(sdec(c, h(~k)), p)^(~y*~y.1) ) @ #vk.13 )
-              case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.14 )
-            next
-              case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.13 )
-            next
-              case R_send2_case_3
-              by solve( !KU( ~y.2 ) @ #vk.18 )
-            next
-              case c_exp
-              by solve( !KU( ~y ) @ #vk.16 )
-            qed
-          qed
-        next
-          case split_case_2
-          solve( !KU( h(map(sdec(c, h(~k)), p)^(~y*~y.1)) ) @ #vk.1 )
-            case c_h
-            solve( !KU( map(sdec(c, h(~k)), p)^(~y*~y.1) ) @ #vk.13 )
-              case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.14 )
-            next
-              case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.11 )
-            next
-              case R_send2_case_3
-              by solve( !KU( ~y.2 ) @ #vk.18 )
-            next
-              case c_exp
-              by solve( !KU( ~y ) @ #vk.16 )
-            qed
-          qed
-        qed
-      next
         case c_tag
         solve( splitEqs(2) )
           case split_case_1
           solve( !KU( h(gx^~y) ) @ #vk.1 )
             case c_h
-            solve( !KU( gx^~y ) @ #vk.8 )
+            solve( !KU( gx^~y ) @ #vk.10 )
               case I_send1
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case R_send2_case_1
               solve( !KU( map(sdec(c, h(~k)), p) ) @ #vk.4 )
                 case R_send2
-                by solve( !KU( ~y.1 ) @ #vk.10 )
+                by solve( !KU( ~y.1 ) @ #vk.12 )
               next
                 case c_map
-                solve( !KU( sdec(c, h(~k)) ) @ #vk.8 )
+                solve( !KU( sdec(c, h(~k)) ) @ #vk.10 )
                   case c_sdec
-                  solve( !KU( h(~k) ) @ #vk.9 )
+                  solve( !KU( h(~k) ) @ #vk.11 )
                     case c_h
-                    solve( !KU( ~k ) @ #vk.10 )
+                    solve( !KU( ~k ) @ #vk.12 )
                       case Rev
                       by contradiction /* from formulas */
                     qed
@@ -2034,81 +1828,81 @@ next
               qed
             next
               case R_send2_case_2
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.9 )
+              by solve( !KU( ~y ) @ #vk.11 )
             qed
           qed
         next
           case split_case_2
           solve( !KU( z^inv(~y) ) @ #vk.3 )
             case I_send1_case_1
-            by solve( !KU( ~x ) @ #vk.10 )
+            by solve( !KU( ~x ) @ #vk.12 )
           next
             case I_send1_case_2
-            by solve( !KU( ~x ) @ #vk.11 )
+            by solve( !KU( ~x ) @ #vk.13 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y.1 ) @ #vk.10 )
+            by solve( !KU( ~y.1 ) @ #vk.12 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.10 )
+            by solve( !KU( ~y ) @ #vk.12 )
           qed
         next
           case split_case_3
           solve( !KU( h(x^(~y*x.1)) ) @ #vk.1 )
             case c_h
-            solve( !KU( x^(~y*x.1) ) @ #vk.8 )
+            solve( !KU( x^(~y*x.1) ) @ #vk.10 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.9 )
+              by solve( !KU( ~y ) @ #vk.11 )
             next
               case I_send1_case_2
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case I_send1_case_3
-              by solve( !KU( ~x.1 ) @ #vk.12 )
+              by solve( !KU( ~x.1 ) @ #vk.14 )
             next
               case I_send1_case_4
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case I_send1_case_5
-              by solve( !KU( ~x.2 ) @ #vk.13 )
+              by solve( !KU( ~x.2 ) @ #vk.15 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.9 )
+              by solve( !KU( ~y ) @ #vk.11 )
             next
               case R_send2_case_2
               solve( !KU( map(sdec(c, h(~k)), p)^x ) @ #vk.4 )
                 case R_send2_case_1
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case R_send2_case_2
-                by solve( !KU( ~y ) @ #vk.15 )
+                by solve( !KU( ~y ) @ #vk.17 )
               next
                 case R_send2_case_3
-                by solve( !KU( ~y.1 ) @ #vk.13 )
-              next
-                case R_send2_case_4
-                by solve( !KU( ~y.1 ) @ #vk.13 )
-              next
-                case R_send2_case_5
                 by solve( !KU( ~y.1 ) @ #vk.15 )
               next
+                case R_send2_case_4
+                by solve( !KU( ~y.1 ) @ #vk.15 )
+              next
+                case R_send2_case_5
+                by solve( !KU( ~y.1 ) @ #vk.17 )
+              next
                 case c_exp
-                solve( !KU( map(sdec(c, h(~k)), p) ) @ #vk.10 )
+                solve( !KU( map(sdec(c, h(~k)), p) ) @ #vk.12 )
                   case R_send2
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
+                  by solve( !KU( ~y.1 ) @ #vk.15 )
                 next
                   case c_map
-                  solve( !KU( sdec(c, h(~k)) ) @ #vk.11 )
+                  solve( !KU( sdec(c, h(~k)) ) @ #vk.13 )
                     case c_sdec
-                    solve( !KU( h(~k) ) @ #vk.12 )
+                    solve( !KU( h(~k) ) @ #vk.14 )
                       case c_h
-                      solve( !KU( ~k ) @ #vk.13 )
+                      solve( !KU( ~k ) @ #vk.15 )
                         case Rev
                         by contradiction /* from formulas */
                       qed
@@ -2118,98 +1912,98 @@ next
               qed
             next
               case R_send2_case_3
-              by solve( !KU( ~y.1 ) @ #vk.15 )
+              by solve( !KU( ~y.1 ) @ #vk.17 )
             next
               case R_send2_case_4
-              by solve( !KU( ~y.1 ) @ #vk.12 )
+              by solve( !KU( ~y.1 ) @ #vk.14 )
             next
               case R_send2_case_5
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             next
               case R_send2_case_6
-              by solve( !KU( ~y.1 ) @ #vk.13 )
+              by solve( !KU( ~y.1 ) @ #vk.15 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.11 )
+              by solve( !KU( ~y ) @ #vk.13 )
             qed
           qed
         next
           case split_case_4
           solve( !KU( x^inv((~y*x.1)) ) @ #vk.3 )
             case I_send1_case_1
-            by solve( !KU( ~x.1 ) @ #vk.10 )
+            by solve( !KU( ~x.1 ) @ #vk.12 )
           next
             case I_send1_case_2
-            by solve( !KU( ~x.1 ) @ #vk.11 )
+            by solve( !KU( ~x.1 ) @ #vk.13 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y.1 ) @ #vk.10 )
+            by solve( !KU( ~y.1 ) @ #vk.12 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.11 )
+            by solve( !KU( ~y ) @ #vk.13 )
           qed
         next
           case split_case_5
           solve( !KU( x^(x.1*inv(~y)) ) @ #vk.3 )
             case I_send1_case_1
-            by solve( !KU( ~y ) @ #vk.9 )
-          next
-            case I_send1_case_2
             by solve( !KU( ~y ) @ #vk.11 )
           next
+            case I_send1_case_2
+            by solve( !KU( ~y ) @ #vk.13 )
+          next
             case I_send1_case_3
-            by solve( !KU( ~x.1 ) @ #vk.11 )
+            by solve( !KU( ~x.1 ) @ #vk.13 )
           next
             case I_send1_case_4
-            by solve( !KU( ~x.1 ) @ #vk.12 )
+            by solve( !KU( ~x.1 ) @ #vk.14 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y ) @ #vk.14 )
+            by solve( !KU( ~y ) @ #vk.16 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.16 )
+            by solve( !KU( ~y.1 ) @ #vk.18 )
           next
             case R_send2_case_3
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case R_send2_case_4
-            by solve( !KU( ~y.1 ) @ #vk.12 )
+            by solve( !KU( ~y.1 ) @ #vk.14 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.12 )
+            by solve( !KU( ~y ) @ #vk.14 )
           qed
         next
           case split_case_6
           solve( !KU( x^(x.1*inv((~y*x.2))) ) @ #vk.3 )
             case I_send1_case_1
-            by solve( !KU( ~y ) @ #vk.10 )
-          next
-            case I_send1_case_2
             by solve( !KU( ~y ) @ #vk.12 )
           next
+            case I_send1_case_2
+            by solve( !KU( ~y ) @ #vk.14 )
+          next
             case I_send1_case_3
-            by solve( !KU( ~x.2 ) @ #vk.11 )
+            by solve( !KU( ~x.2 ) @ #vk.13 )
           next
             case I_send1_case_4
-            by solve( !KU( ~x.2 ) @ #vk.12 )
+            by solve( !KU( ~x.2 ) @ #vk.14 )
           next
             case R_send2_case_1
-            by solve( !KU( ~y ) @ #vk.15 )
+            by solve( !KU( ~y ) @ #vk.17 )
           next
             case R_send2_case_2
-            by solve( !KU( ~y.1 ) @ #vk.17 )
+            by solve( !KU( ~y.1 ) @ #vk.19 )
           next
             case R_send2_case_3
-            by solve( !KU( ~y.1 ) @ #vk.11 )
+            by solve( !KU( ~y.1 ) @ #vk.13 )
           next
             case R_send2_case_4
-            by solve( !KU( ~y.1 ) @ #vk.12 )
+            by solve( !KU( ~y.1 ) @ #vk.14 )
           next
             case c_exp
-            by solve( !KU( ~y ) @ #vk.13 )
+            by solve( !KU( ~y ) @ #vk.15 )
           qed
         next
           case split_case_7
@@ -2218,7 +2012,7 @@ next
       qed
     next
       case split_case_2
-      solve( !KU( tag(h(z), map(s, p)^~y) ) @ #vk.1 )
+      solve( !KU( tag(h(z), <'I', map(s, p)^~y>) ) @ #vk.1 )
         case I_send3
         solve( !KU( h(map(s, p)^(~x*~y)) ) @ #vk.1 )
           case c_h
@@ -2240,51 +2034,6 @@ next
           qed
         qed
       next
-        case R_send4
-        solve( splitEqs(4) )
-          case split_case_1
-          solve( !KU( h(map(s, p)^(~y*~y.1)) ) @ #vk.1 )
-            case c_h
-            solve( !KU( map(s, p)^(~y*~y.1) ) @ #vk.13 )
-              case I_send1
-              by solve( !KU( ~x ) @ #vk.17 )
-            next
-              case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.14 )
-            next
-              case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.13 )
-            next
-              case R_send2_case_3
-              by solve( !KU( ~y.2 ) @ #vk.18 )
-            next
-              case c_exp
-              by solve( !KU( ~y ) @ #vk.16 )
-            qed
-          qed
-        next
-          case split_case_2
-          solve( !KU( h(map(s, p)^(~y*~y.1)) ) @ #vk.1 )
-            case c_h
-            solve( !KU( map(s, p)^(~y*~y.1) ) @ #vk.13 )
-              case I_send1
-              by solve( !KU( ~x ) @ #vk.17 )
-            next
-              case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.14 )
-            next
-              case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.13 )
-            next
-              case R_send2_case_3
-              by solve( !KU( ~y.2 ) @ #vk.18 )
-            next
-              case c_exp
-              by solve( !KU( ~y ) @ #vk.16 )
-            qed
-          qed
-        qed
-      next
         case c_tag
         solve( !KU( senc(s, h(~k)) ) @ #vk.6 )
           case I_send1
@@ -2292,22 +2041,22 @@ next
             case split_case_1
             solve( !KU( h(gx^~y) ) @ #vk.3 )
               case c_h
-              solve( !KU( gx^~y ) @ #vk.8 )
+              solve( !KU( gx^~y ) @ #vk.10 )
                 case I_send1
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case R_send2_case_1
                 solve( !KU( map(~s, p) ) @ #vk.6 )
                   case I_send1
-                  by solve( !KU( ~x ) @ #vk.9 )
+                  by solve( !KU( ~x ) @ #vk.11 )
                 next
                   case R_send2
-                  by solve( !KU( ~y.1 ) @ #vk.10 )
+                  by solve( !KU( ~y.1 ) @ #vk.12 )
                 next
                   case c_map
-                  solve( !KU( ~s ) @ #vk.8 )
+                  solve( !KU( ~s ) @ #vk.10 )
                     case I_send1
-                    solve( !KU( ~k ) @ #vk.10 )
+                    solve( !KU( ~k ) @ #vk.12 )
                       case Rev
                       by contradiction /* from formulas */
                     qed
@@ -2315,97 +2064,97 @@ next
                 qed
               next
                 case R_send2_case_2
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case c_exp
-                by solve( !KU( ~y ) @ #vk.9 )
+                by solve( !KU( ~y ) @ #vk.11 )
               qed
             qed
           next
             case split_case_2
             solve( !KU( z^inv(~y) ) @ #vk.5 )
               case I_send1_case_1
-              by solve( !KU( ~x.1 ) @ #vk.10 )
+              by solve( !KU( ~x.1 ) @ #vk.12 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x.1 ) @ #vk.11 )
+              by solve( !KU( ~x.1 ) @ #vk.13 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y.1 ) @ #vk.10 )
+              by solve( !KU( ~y.1 ) @ #vk.12 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.10 )
+              by solve( !KU( ~y ) @ #vk.12 )
             qed
           next
             case split_case_3
             solve( !KU( h(x^(~y*x.1)) ) @ #vk.3 )
               case c_h
-              solve( !KU( x^(~y*x.1) ) @ #vk.8 )
+              solve( !KU( x^(~y*x.1) ) @ #vk.10 )
                 case I_send1_case_1
-                by solve( !KU( ~y ) @ #vk.9 )
+                by solve( !KU( ~y ) @ #vk.11 )
               next
                 case I_send1_case_2
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case I_send1_case_3
-                by solve( !KU( ~x.2 ) @ #vk.12 )
+                by solve( !KU( ~x.2 ) @ #vk.14 )
               next
                 case I_send1_case_4
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case I_send1_case_5
-                by solve( !KU( ~x.3 ) @ #vk.13 )
+                by solve( !KU( ~x.3 ) @ #vk.15 )
               next
                 case R_send2_case_1
-                by solve( !KU( ~y ) @ #vk.9 )
+                by solve( !KU( ~y ) @ #vk.11 )
               next
                 case R_send2_case_2
                 solve( !KU( map(~s, p)^x ) @ #vk.6 )
                   case I_send1_case_1
-                  by solve( !KU( ~x ) @ #vk.9 )
-                next
-                  case I_send1_case_2
                   by solve( !KU( ~x ) @ #vk.11 )
                 next
+                  case I_send1_case_2
+                  by solve( !KU( ~x ) @ #vk.13 )
+                next
                   case I_send1_case_3
-                  by solve( !KU( ~x.1 ) @ #vk.12 )
+                  by solve( !KU( ~x.1 ) @ #vk.14 )
                 next
                   case I_send1_case_4
-                  by solve( !KU( ~x.1 ) @ #vk.12 )
+                  by solve( !KU( ~x.1 ) @ #vk.14 )
                 next
                   case I_send1_case_5
-                  by solve( !KU( ~x.2 ) @ #vk.14 )
+                  by solve( !KU( ~x.2 ) @ #vk.16 )
                 next
                   case R_send2_case_1
-                  by solve( !KU( ~y ) @ #vk.10 )
+                  by solve( !KU( ~y ) @ #vk.12 )
                 next
                   case R_send2_case_2
-                  by solve( !KU( ~y ) @ #vk.15 )
+                  by solve( !KU( ~y ) @ #vk.17 )
                 next
                   case R_send2_case_3
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
-                next
-                  case R_send2_case_4
-                  by solve( !KU( ~y.1 ) @ #vk.13 )
-                next
-                  case R_send2_case_5
                   by solve( !KU( ~y.1 ) @ #vk.15 )
                 next
+                  case R_send2_case_4
+                  by solve( !KU( ~y.1 ) @ #vk.15 )
+                next
+                  case R_send2_case_5
+                  by solve( !KU( ~y.1 ) @ #vk.17 )
+                next
                   case c_exp
-                  solve( !KU( map(~s, p) ) @ #vk.10 )
+                  solve( !KU( map(~s, p) ) @ #vk.12 )
                     case I_send1
-                    by solve( !KU( ~x.1 ) @ #vk.12 )
+                    by solve( !KU( ~x.1 ) @ #vk.14 )
                   next
                     case R_send2
-                    by solve( !KU( ~y.1 ) @ #vk.13 )
+                    by solve( !KU( ~y.1 ) @ #vk.15 )
                   next
                     case c_map
-                    solve( !KU( ~s ) @ #vk.11 )
+                    solve( !KU( ~s ) @ #vk.13 )
                       case I_send1
-                      solve( !KU( ~k ) @ #vk.13 )
+                      solve( !KU( ~k ) @ #vk.15 )
                         case Rev
                         by contradiction /* from formulas */
                       qed
@@ -2414,98 +2163,98 @@ next
                 qed
               next
                 case R_send2_case_3
-                by solve( !KU( ~y.1 ) @ #vk.15 )
+                by solve( !KU( ~y.1 ) @ #vk.17 )
               next
                 case R_send2_case_4
-                by solve( !KU( ~y.1 ) @ #vk.12 )
+                by solve( !KU( ~y.1 ) @ #vk.14 )
               next
                 case R_send2_case_5
-                by solve( !KU( ~y ) @ #vk.10 )
+                by solve( !KU( ~y ) @ #vk.12 )
               next
                 case R_send2_case_6
-                by solve( !KU( ~y.1 ) @ #vk.13 )
+                by solve( !KU( ~y.1 ) @ #vk.15 )
               next
                 case c_exp
-                by solve( !KU( ~y ) @ #vk.11 )
+                by solve( !KU( ~y ) @ #vk.13 )
               qed
             qed
           next
             case split_case_4
             solve( !KU( x^inv((~y*x.1)) ) @ #vk.5 )
               case I_send1_case_1
-              by solve( !KU( ~x.2 ) @ #vk.10 )
+              by solve( !KU( ~x.2 ) @ #vk.12 )
             next
               case I_send1_case_2
-              by solve( !KU( ~x.2 ) @ #vk.11 )
+              by solve( !KU( ~x.2 ) @ #vk.13 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y.1 ) @ #vk.10 )
+              by solve( !KU( ~y.1 ) @ #vk.12 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.11 )
+              by solve( !KU( ~y ) @ #vk.13 )
             qed
           next
             case split_case_5
             solve( !KU( x^(x.1*inv(~y)) ) @ #vk.5 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.9 )
-            next
-              case I_send1_case_2
               by solve( !KU( ~y ) @ #vk.11 )
             next
+              case I_send1_case_2
+              by solve( !KU( ~y ) @ #vk.13 )
+            next
               case I_send1_case_3
-              by solve( !KU( ~x.2 ) @ #vk.11 )
+              by solve( !KU( ~x.2 ) @ #vk.13 )
             next
               case I_send1_case_4
-              by solve( !KU( ~x.2 ) @ #vk.12 )
+              by solve( !KU( ~x.2 ) @ #vk.14 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.14 )
+              by solve( !KU( ~y ) @ #vk.16 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.16 )
+              by solve( !KU( ~y.1 ) @ #vk.18 )
             next
               case R_send2_case_3
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case R_send2_case_4
-              by solve( !KU( ~y.1 ) @ #vk.12 )
+              by solve( !KU( ~y.1 ) @ #vk.14 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.12 )
+              by solve( !KU( ~y ) @ #vk.14 )
             qed
           next
             case split_case_6
             solve( !KU( x^(x.1*inv((~y*x.2))) ) @ #vk.5 )
               case I_send1_case_1
-              by solve( !KU( ~y ) @ #vk.10 )
-            next
-              case I_send1_case_2
               by solve( !KU( ~y ) @ #vk.12 )
             next
+              case I_send1_case_2
+              by solve( !KU( ~y ) @ #vk.14 )
+            next
               case I_send1_case_3
-              by solve( !KU( ~x.3 ) @ #vk.11 )
+              by solve( !KU( ~x.3 ) @ #vk.13 )
             next
               case I_send1_case_4
-              by solve( !KU( ~x.3 ) @ #vk.12 )
+              by solve( !KU( ~x.3 ) @ #vk.14 )
             next
               case R_send2_case_1
-              by solve( !KU( ~y ) @ #vk.15 )
+              by solve( !KU( ~y ) @ #vk.17 )
             next
               case R_send2_case_2
-              by solve( !KU( ~y.1 ) @ #vk.17 )
+              by solve( !KU( ~y.1 ) @ #vk.19 )
             next
               case R_send2_case_3
-              by solve( !KU( ~y.1 ) @ #vk.11 )
+              by solve( !KU( ~y.1 ) @ #vk.13 )
             next
               case R_send2_case_4
-              by solve( !KU( ~y.1 ) @ #vk.12 )
+              by solve( !KU( ~y.1 ) @ #vk.14 )
             next
               case c_exp
-              by solve( !KU( ~y ) @ #vk.13 )
+              by solve( !KU( ~y ) @ #vk.15 )
             qed
           next
             case split_case_7
@@ -2513,9 +2262,9 @@ next
           qed
         next
           case c_senc
-          solve( !KU( h(~k) ) @ #vk.9 )
+          solve( !KU( h(~k) ) @ #vk.11 )
             case c_h
-            solve( !KU( ~k ) @ #vk.10 )
+            solve( !KU( ~k ) @ #vk.12 )
               case Rev
               by contradiction /* from formulas */
             qed

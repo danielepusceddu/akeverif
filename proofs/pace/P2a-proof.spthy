@@ -64,13 +64,13 @@ rule (modulo E) I_recv2:
 rule (modulo E) I_send3:
    [ St_I_3( A, id, B, kab, kba, x, y ) ]
   -->
-   [ St_I_4( A, id, B, kab, kba, x, y ), Out( tag(kab, y) ) ]
+   [ St_I_4( A, id, B, kab, kba, x, y ), Out( tag(y, kab) ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_recv3:
    [ In( t ), St_R_3( B, id, A, kba, kab, x, y ) ]
-  --[ Eq( t, tag(kab, y) ) ]->
+  --[ Eq( t, tag(y, kab) ) ]->
    [ St_R_4( B, id, A, kba, kab, x, y ) ]
 
   /* has exactly the trivial AC variant */
@@ -78,14 +78,14 @@ rule (modulo E) R_recv3:
 rule (modulo E) R_send4:
    [ St_R_4( B, id, A, kba, kab, x, y ) ]
   --[ Commit( B, A, <'R', 'I', x, y> ) ]->
-   [ St_R_5( B, id, A, kba, kab, x, y ), Out( tag(kba, x) ) ]
+   [ St_R_5( B, id, A, kba, kab, x, y ), Out( tag(x, kba) ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) I_recv4:
    [ In( t ), St_I_4( A, id, B, kab, kba, x, y ) ]
   --[
-  Commit( A, B, <'I', 'R', x, y> ), Finish( ), Eq( t, tag(kba, x) )
+  Commit( A, B, <'I', 'R', x, y> ), Finish( ), Eq( t, tag(x, kba) )
   ]->
    [ St_I_5( A, id, B, kab, kba, x, y ) ]
 
@@ -132,7 +132,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   case I_recv4
   solve( St_I_4( a, id, b, kab, kba, x, y ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(~k, ~x) ) @ #vk )
+    solve( !KU( tag(~x, ~k) ) @ #vk )
       case I_send3
       solve( !KU( ~x ) @ #vk.2 )
         case I_send1
@@ -152,7 +152,7 @@ guarded formula characterizing all satisfying traces:
 simplify
 solve( St_I_4( A, id, B, kab, kba, x, y ) ▶₁ #i )
   case I_send3
-  solve( !KU( tag(~k, ~x) ) @ #vk )
+  solve( !KU( tag(~x, ~k) ) @ #vk )
     case I_send3
     solve( !KU( ~x ) @ #vk.2 )
       case I_send1
@@ -188,7 +188,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
   case R_send4
   solve( St_R_4( a, id, b, kba, kab, x, y ) ▶₀ #i )
     case R_recv3
-    solve( !KU( tag(~k.1, ~y) ) @ #vk )
+    solve( !KU( tag(~y, ~k.1) ) @ #vk )
       case I_send3
       solve( !KU( ~y ) @ #vk.2 )
         case R_send2

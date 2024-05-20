@@ -1,4 +1,4 @@
-theory P3a
+theory P3c
 begin
 
 functions: kdf/3, tag/2
@@ -6,8 +6,8 @@ functions: kdf/3, tag/2
 /*
 a to b: x
 b to a: y
-a to b: mac{y}kdf(k(a,b), x, y)
-b to a: mac{x}kdf(k(a,b), x, y)
+a to b: mac{<'I', y>}kdf(k(a,b), x, y)
+b to a: mac{<'R', x>}kdf(k(a,b), x, y)
 */
 
 rule Keygen:
@@ -55,35 +55,29 @@ rule I_recv2:
 rule I_send3:
     [St_I_3(A, id, B, kab, x, y, k)]
     -->
-    [St_I_4(A, id, B, kab, x, y, k), Out(tag(k, y))]
+    [St_I_4(A, id, B, kab, x, y, k), Out(tag(k, <'I', 'hello'>))]
 
 rule R_recv3:
     [In(t), St_R_3(B, id, A, kab, x, y, k)]
-    --[Eq(t, tag(k, y))]->
+    --[Eq(t, tag(k, <'I', 'hello'>))]->
     [St_R_4(B, id, A, kab, x, y, k)]
 
 rule R_send4:
     [St_R_4(B, id, A, kab, x, y, k)]
     --[Commit(B, A, <'R', 'I', <x, y, k>>), Secret(B, A, k)]->
-    [St_R_5(B, id, A, kab, x, y, k), Out(tag(k, x))]
+    [St_R_5(B, id, A, kab, x, y, k), Out(tag(k, <'R', 'hello'>))]
 
 rule I_recv4:
     [In(t), St_I_4(A, id, B, kab, x, y, k)]
-    --[Commit(A, B, <'I', 'R', <x, y, k>>), Secret(A, B, k), Finish(), Eq(t, tag(k, x))]->
+    --[Commit(A, B, <'I', 'R', <x, y, k>>), Secret(A, B, k), Finish(), Eq(t, tag(k, <'R', 'hello'>))]->
     [St_I_5(A, id, B, kab, x, y, k)]
 
 
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
 
-// Should be Claim_commit ?
-// Falsified
-lemma noninjectiveagreementINITIATOR:
-    "All a b t #i.
-        Commit(a,b,<'I','R',t>)@i &
-        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-        ==> Ex #j. Running(b,a,<'I','R',t>)@j"
 
+// Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
         Commit(a,b,<'I','R',t>)@i &
@@ -98,14 +92,7 @@ lemma Executability:
     "Ex #i. 
     Finish() @i &  not (Ex A #j. Reveal(A)@j)
     "
-
-// Falsified
-lemma noninjectiveagreementRESPONDER:
-    "All a b t #i.
-    Commit(a,b,<'R', 'I',t>)@i &
-    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-    ==> Ex #j. Running(b,a,<'R', 'I',t>)@j"
-
+// Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &

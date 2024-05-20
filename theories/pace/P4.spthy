@@ -1,13 +1,15 @@
-theory P3c
+theory P4
 begin
 
-functions: kdf/3, tag/2
+builtins: symmetric-encryption
+
+functions: kdf/3, tag/2, h/1
 
 /*
-a to b: x
+a to b: x,{|s|}h(k(a,b))
 b to a: y
-a to b: mac{<'I', y>}kdf(k(a,b), x, y)
-b to a: mac{<'R', x>}kdf(k(a,b), x, y)
+a to b: mac{<'I', 'hi'>}kdf(s, x, y)
+b to a: mac{<'R', 'hi'>}kdf(s, x, y)
 */
 
 rule Keygen:
@@ -31,52 +33,53 @@ rule Init_R:
     [St_R_1(B, ~id, A, kab)]
 
 rule I_send1:
-    [Fr(~x), St_I_1(A, id, B, kab)]
+    [Fr(~x), Fr(~s), St_I_1(A, id, B, kab)]
     -->
-    [St_I_2(A, id, B, kab, ~x), Out(~x)]
+    [St_I_2(A, id, B, kab, ~x, ~s), Out(<~x, senc(~s, h(kab))>)]
 
 rule R_recv1:
-    [In(x), St_R_1(B, id, A, kab)]
+    let s = sdec(c, h(kab)) in
+    [In(<x,c>), St_R_1(B, id, A, kab)]
     -->
-    [St_R_2(B, id, A, kab, x)]
+    [St_R_2(B, id, A, kab, x, s)]
 
 rule R_send2:
-    let k = kdf(kab, x, ~y) in
-    [Fr(~y), St_R_2(B, id, A, kab, x)]
+    let k = kdf(s, x, ~y) in
+    [Fr(~y), St_R_2(B, id, A, kab, x, s)]
     --[Running(B, A, <'I', 'R', <x, ~y, k>>)]->
-    [St_R_3(B, id, A, kab, x, ~y, k), Out(~y)]
+    [St_R_3(B, id, A, kab, x, s, ~y, k), Out(~y)]
 
 rule I_recv2:
-    let k = kdf(kab, x, y) in
-    [In(y), St_I_2(A, id, B, kab, x)]
+    let k = kdf(s, x, y) in
+    [In(y), St_I_2(A, id, B, kab, x, s)]
     --[Running(A, B, <'R', 'I', <x, y, k>>)]->
-    [St_I_3(A, id, B, kab, x, y, k)]
+    [St_I_3(A, id, B, kab, x, s, y, k)]
 
 rule I_send3:
-    [St_I_3(A, id, B, kab, x, y, k)]
+    [St_I_3(A, id, B, kab, x, s, y, k)]
     -->
-    [St_I_4(A, id, B, kab, x, y, k), Out(tag(k, <'I', 'hello'>))]
+    [St_I_4(A, id, B, kab, x, s, y, k), Out(tag(k, <'I', 'hello'>))]
 
 rule R_recv3:
-    [In(t), St_R_3(B, id, A, kab, x, y, k)]
+    [In(t), St_R_3(B, id, A, kab, x, s, y, k)]
     --[Eq(t, tag(k, <'I', 'hello'>))]->
-    [St_R_4(B, id, A, kab, x, y, k)]
+    [St_R_4(B, id, A, kab, x, s, y, k)]
 
 rule R_send4:
-    [St_R_4(B, id, A, kab, x, y, k)]
+    [St_R_4(B, id, A, kab, x, s, y, k)]
     --[Commit(B, A, <'R', 'I', <x, y, k>>), Secret(B, A, k)]->
-    [St_R_5(B, id, A, kab, x, y, k), Out(tag(k, <'R', 'hello'>))]
+    [St_R_5(B, id, A, kab, x, s, y, k), Out(tag(k, <'R', 'hello'>))]
 
 rule I_recv4:
-    [In(t), St_I_4(A, id, B, kab, x, y, k)]
+    [In(t), St_I_4(A, id, B, kab, x, s, y, k)]
     --[Commit(A, B, <'I', 'R', <x, y, k>>), Secret(A, B, k), Finish(), Eq(t, tag(k, <'R', 'hello'>))]->
-    [St_I_5(A, id, B, kab, x, y, k)]
+    [St_I_5(A, id, B, kab, x, s, y, k)]
 
 
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
 
-// Should be Claim_commit ?
+
 // Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.

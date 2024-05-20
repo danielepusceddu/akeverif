@@ -20,7 +20,9 @@ equations:
 
 
 rule (modulo E) GenKey:
-   [ Fr( ~sk ) ] --> [ !Ltk( $A, ~sk ) ]
+   [ Fr( ~sk ) ]
+  --[ Gen( $A, ~sk ) ]->
+   [ !Ltk( $A, ~sk ), !Pk( $A, pk(~sk) ), Out( pk(~sk) ) ]
 
   /* has exactly the trivial AC variant */
 
@@ -30,33 +32,37 @@ rule (modulo E) Rev:
   /* has exactly the trivial AC variant */
 
 rule (modulo E) A_init:
-   [ Fr( ~id ), !Ltk( $A, ~skA ) ] --> [ St_I_1( $A, $B, ~id, ~skA ) ]
+   [ Fr( ~id ), !Ltk( A, skA ), !Pk( B, pkB ) ]
+  --[ Create_I( A, ~id ) ]->
+   [ St_I_1( A, B, ~id, skA, pkB ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) B_init:
-   [ Fr( ~id ), !Ltk( $B, ~skB ) ] --> [ St_R_1( $B, $A, ~id, ~skB ) ]
+   [ Fr( ~id ), !Ltk( B, skB ), !Pk( A, pkA ) ]
+  --[ Create_R( B, ~id ) ]->
+   [ St_R_1( B, A, ~id, skB, pkA ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) A_send1:
-   [ Fr( ~x ), St_I_1( A, B, id, skA ) ]
+   [ Fr( ~x ), St_I_1( A, B, id, skA, pkB ) ]
   -->
    [
-   St_I_2( A, B, id, skA, ~x ),
+   St_I_2( A, B, id, skA, pkB, ~x ),
    Out( <revealSign('g'^~x, skA), pk(skA)> )
    ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) B_recv1:
-   [ In( <t, pkA> ), St_R_1( B, A, id, skB ) ]
+   [ In( <t, pkA> ), St_R_1( B, A, id, skB, pkA ) ]
   --[ Eq( revealVerify(t, getMessage(t), pkA), true ) ]->
    [ St_R_2( B, A, id, skB, pkA, getMessage(t) ) ]
 
   /*
   rule (modulo AC) B_recv1:
-     [ In( <t, pkA> ), St_R_1( B, A, id, skB ) ]
+     [ In( <t, pkA> ), St_R_1( B, A, id, skB, pkA ) ]
     --[ Eq( z.1, true ) ]->
      [ St_R_2( B, A, id, skB, pkA, z ) ]
     variants (modulo AC)
@@ -87,13 +93,13 @@ rule (modulo E) B_send2:
   /* has exactly the trivial AC variant */
 
 rule (modulo E) A_recv2:
-   [ In( <t, pkB> ), St_I_2( A, B, id, skA, x ) ]
+   [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
   --[ Eq( revealVerify(t, getMessage(t), pkB), true ), Finish( ) ]->
    [ St_I_3( A, B, id, skA, pkB, x, getMessage(t) ) ]
 
   /*
   rule (modulo AC) A_recv2:
-     [ In( <t, pkB> ), St_I_2( A, B, id, skA, x ) ]
+     [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
     --[ Eq( z.1, true ), Finish( ) ]->
      [ St_I_3( A, B, id, skA, pkB, x, z ) ]
     variants (modulo AC)
@@ -125,11 +131,11 @@ guarded formula characterizing all satisfying traces:
 "∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
 */
 simplify
-solve( St_I_2( A, B, id, skA, x.1 ) ▶₁ #i )
+solve( St_I_2( A, B, id, skA, pk(x), x.1 ) ▶₁ #i )
   case A_send1
-  solve( !KU( revealSign(z, x) ) @ #vk.1 )
+  solve( !KU( revealSign(z, ~sk) ) @ #vk.1 )
     case A_send1
-    solve( !KU( pk(~skA) ) @ #vk.2 )
+    solve( !KU( pk(~sk) ) @ #vk.2 )
       case A_send1
       SOLVED // trace found
     qed
@@ -157,9 +163,9 @@ qed
 /*
 Generated from:
 Tamarin version 1.8.0
-Maude version 3.1
-Git revision: f172d7f00b1485446a1e7a42dc14623c2189cc42, branch: master
-Compiled at: 2023-09-01 08:49:23.916032222 UTC
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-08-30 13:15:41.590881948 UTC
 */
 
 end

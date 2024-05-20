@@ -36,11 +36,11 @@ rule R_recv:
 rule R_send:
     [St_R_2(B, id, A, k, x)]
     -->
-    [St_R_3(B, id, A, k, x), Out(tag(k, x))]
+    [St_R_3(B, id, A, k, x), Out(tag(x, k))]
 
 rule I_recv:
     [In(t), St_I_2(A, id, B, k, x)]
-    --[Eq(t, tag(k, x)), Commit(A, B, <'I', 'R', x>), Finish()]->
+    --[Eq(t, tag(x, k)), Commit(A, B, <'I', 'R', x>), Finish()]->
     [St_I_3(A, id, B, k, x)]
 
 restriction Equality:
@@ -50,7 +50,7 @@ restriction Unidirectional:
     "All A B #i #j k1 k2.
     Gen(A, B, k1)@i & Gen(B, A, k2)@j ==> not(k1=k2)"
 
-// Should be Claim_commit ?
+
 // Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.

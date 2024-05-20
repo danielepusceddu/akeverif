@@ -89,7 +89,7 @@ restriction Equality:
 restriction Inequality:
     "All m1 m2 #i. NotEq(m1, m2)@i ==> not(m1=m2)"
 
-// Should be Claim_commit ?
+
 // Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.
