@@ -5,8 +5,8 @@ builtins: diffie-hellman, revealing-signing
 
 rule GenKey:
     [Fr(~sk)]
-    -->
-    [!Ltk($A, ~sk)]
+    --[Gen($A, ~sk)]->
+    [!Ltk($A, ~sk), !Pk($A, pk(~sk)), Out(pk(~sk))]
 
 rule Rev:
     [!Ltk(A, sk)]
@@ -14,25 +14,25 @@ rule Rev:
     [Out(sk)]
 
 rule A_init:
-    [Fr(~id), !Ltk($A, ~skA)]
-    -->
-    [St_I_1($A, $B, ~id, ~skA)]
+    [Fr(~id), !Ltk(A, skA), !Pk(B, pkB)]
+    --[Create_I(A, ~id)]->
+    [St_I_1(A, B, ~id, skA, pkB)]
 
 rule B_init:
-    [Fr(~id), !Ltk($B, ~skB)]
-    -->
-    [St_R_1($B, $A, ~id, ~skB)]
+    [Fr(~id), !Ltk(B, skB), !Pk(A, pkA)]
+    --[Create_R(B, ~id)]->
+    [St_R_1(B, A, ~id, skB, pkA)]
 
 rule A_send1:
-    [Fr(~x), St_I_1(A, B, id, skA)]
+    [Fr(~x), St_I_1(A, B, id, skA, pkB)]
     -->
-    [St_I_2(A, B, id, skA, ~x), Out(<revealSign('g'^~x, skA), pk(skA)>)]
+    [St_I_2(A, B, id, skA, pkB, ~x), Out(<revealSign('g'^~x, skA), pk(skA)>)]
 
 rule B_recv1:
-    let gy = getMessage(t) in 
-    [In(<t, pkA>), St_R_1(B, A, id, skB)]
-    --[Eq(revealVerify(t, gy, pkA), true)]->
-    [St_R_2(B, A, id, skB, pkA, gy)]
+    let gx = getMessage(t) in 
+    [In(<t, pkA>), St_R_1(B, A, id, skB, pkA)]
+    --[Eq(revealVerify(t, gx, pkA), true)]->
+    [St_R_2(B, A, id, skB, pkA, gx)]
 
 rule B_send2:
     [Fr(~y), St_R_2(B, A, id, skB, pkA, gx)]
@@ -41,13 +41,13 @@ rule B_send2:
 
 rule A_recv2:
     let gy = getMessage(t) in
-    [In(<t, pkB>), St_I_2(A, B, id, skA, x)]
+    [In(<t, pkB>), St_I_2(A, B, id, skA, pkB, x)]
     --[Eq(revealVerify(t, gy, pkB), true), Finish()]->
     [St_I_3(A, B, id, skA, pkB, x, getMessage(t))]
 
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2" 
-
+    
 // Verified
 lemma Executability:
     exists-trace "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j)"

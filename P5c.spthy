@@ -1,0 +1,117 @@
+theory P5c
+begin
+
+builtins: symmetric-encryption
+builtins: diffie-hellman
+
+functions: tag/2, h/1, map/2
+
+/*
+a to b: g^x
+b to a: g^y
+a to b: mac{<'I', g^y>}h(g^xy)
+b to a: mac{<'R', g^x>}h(g^xy)
+*/
+
+rule Keygen:
+    [Fr(~k)]
+    --[Gen($A, $B, ~k)]->
+    [!Ltk($A, $B, ~k)]
+    
+rule Rev:
+    [!Ltk(A, B, k)]
+    --[Reveal(A)]->
+    [Out(k)]
+
+rule Init_I:
+    [Fr(~id), !Ltk(A, B, kab)]
+    --[Create_I(A, ~id)]->
+    [St_I_1(A, ~id, B, kab)]
+
+rule Init_R:
+    [Fr(~id), !Ltk(A, B, kab)]
+    --[Create_R(B, ~id)]->
+    [St_R_1(B, ~id, A, kab)]
+
+rule I_send1:
+    [Fr(~x), St_I_1(A, id, B, kab)]
+    -->
+    [St_I_2(A, id, B, kab, ~x), Out(<'g'^(~x)>)]
+
+rule R_recv1:
+    [In(gx), St_R_1(B, id, A, kab)]
+    --[NotEq(gx, DH_neutral)]->
+    [St_R_2(B, id, A, kab, gx)]
+
+rule R_send2:
+    let k = h(gx^(~y)) in
+    [Fr(~y), St_R_2(B, id, A, kab, gx)]
+    --[Running(B, A, <'I', 'R', <gx, 'g'^(~y), k>>)]->
+    [St_R_3(B, id, A, kab, gx, ~y, k), Out('g'^(~y))]
+
+rule I_recv2:
+    let k = h(gy^x) in
+    [In(gy), St_I_2(A, id, B, kab, x)]
+    --[NotEq(gy, DH_neutral), Running(A, B, <'R', 'I', <'g'^x, gy, k>>)]->
+    [St_I_3(A, id, B, kab, x, gy, k)]
+
+rule I_send3:
+    [St_I_3(A, id, B, kab, x, gy, k)]
+    -->
+    [St_I_4(A, id, B, kab, x, gy, k), Out(tag(k, <'I', gy>))]
+
+rule R_recv3:
+    [In(t), St_R_3(B, id, A, kab, gx, y, k)]
+    --[Eq(t, tag(k, <'I', 'g'^y>))]->
+    [St_R_4(B, id, A, kab, gx, y, k)]
+
+rule R_send4:
+    [St_R_4(B, id, A, kab, gx, y, k)]
+    --[Commit(B, A, <'R', 'I', <gx, 'g'^y, k>>), Secret(B, A, k)]->
+    [St_R_5(B, id, A, kab, gx, y, k), Out(tag(k, <'R', gx>))]
+
+rule I_recv4:
+    [In(t), St_I_4(A, id, B, kab, x, gy, k)]
+    --[Commit(A, B, <'I', 'R', <'g'^x, gy, k>>), Secret(A, B, k), Finish(), Eq(t, tag(k, <'R', 'g'^x>))]->
+    [St_I_5(A, id, B, kab, x, gy, k)]
+
+
+restriction Equality:
+    "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
+
+restriction Inequality:
+    "All m1 m2 #i. NotEq(m1, m2)@i ==> not(m1=m2)"
+
+// Should be Claim_commit ?
+// Falsified
+lemma injectiveagreementINITIATOR:
+    "All a b t #i.
+        Commit(a,b,<'I','R',t>)@i &
+        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
+        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
+        & not (#i2 = #i)))"
+
+// Verified
+lemma Executability:
+    exists-trace
+    "Ex #i. 
+    Finish() @i &  not (Ex A #j. Reveal(A)@j)
+    "
+// Falsified
+lemma injectiveagreementRESPONDER:
+    "All a b t #i.
+    Commit(a,b,<'R', 'I',t>)@i &
+    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+    ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j
+    & not (Ex a2 b2 #i2. Commit(a2,b2,<'R','I',t>)@i2
+    & not (#i2 = #i)))"
+
+// Falsified
+lemma secrecy_PFS:
+    "All A B x #i.
+    Secret(A,B,x)@i &
+    not ((Ex #r. Reveal(A)@r & r < i) | (Ex #r. Reveal(B)@r & r < i))
+    ==> not (Ex #j. K(x)@j)"
+
+end

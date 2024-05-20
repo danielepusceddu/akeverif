@@ -1,0 +1,114 @@
+theory OTR4
+begin
+
+builtins: revealing-signing
+builtins: diffie-hellman
+
+functions: tag/2, h/1
+
+rule GenKey:
+    [Fr(~sk)]
+    -->
+    [!Ltk($A, ~sk), !Pk($A, pk(~sk)), Out(pk(~sk))]
+    
+rule Rev:
+    [!Ltk(A, sk)]
+    --[Reveal(A)]->
+    [Out(sk)]
+
+rule A_init:
+    [Fr(~id), !Ltk(A, skA), !Pk(B, pkB)]
+    --[Create_I(A, ~id)]->
+    [St_I_1(A, B, ~id, skA, pkB)]
+
+rule B_init:
+    [Fr(~id), !Ltk(B, skB), !Pk(A, pkA)]
+    --[Create_R(B, ~id)]->
+    [St_R_1(B, A, ~id, skB, pkA)]
+
+rule A_send1:
+    [Fr(~x), St_I_1(A, B, id, skA, pkB)]
+    -->
+    [St_I_2(A, B, id, skA, pkB, ~x), Out(<'g'^(~x)>)]
+
+rule B_recv1:
+    [In(gx), St_R_1(B, A, id, skB, pkA)]
+    --[NotEq(gx, DH_neutral)]->
+    [St_R_2(B, A, id, skB, pkA, gx)]
+
+rule B_send2:
+    [Fr(~y), St_R_2(B, A, id, skB, pkA, gx)]
+    --[Running(B, A, <'I', 'R', gx^(~y)>)]->
+    [St_R_3(B, A, id, skB, pkA, gx, ~y), Out('g'^(~y))]
+
+rule A_recv2:
+    [In(gy), St_I_2(A, B, id, skA, pkB, x)]
+    --[NotEq(gy, DH_neutral), Running(A, B, <'R', 'I', gy^x>)]->
+    [St_I_3(A, B, id, skA, pkB, x, gy)]
+
+rule A_send3:
+    [St_I_3(A, B, id, skA, pkB, x, gy)]
+    -->
+    [St_I_4(A, B, id, skA, pkB, x, gy), Out(<A, revealSign(<gy, 'g'^x>, skA), tag(h(gy^x), <'0', A>), pk(skA)>)]
+
+rule B_recv3:
+    [In(<A, s, t, pkA>), St_R_3(B, A, id, skB, pkA, gx, y)]
+    --[Eq(revealVerify(getMessage(s), <'g'^y, gx>, pkA), true), Eq(t, tag(h(gx^y), <'0', A>))]->
+    [St_R_4(B, A, id, skB, pkA, gx, y)]
+
+rule B_send4:
+    [St_R_4(B, A, id, skB, pkA, gx, y)]
+    --[Commit(B, A, <'R', 'I', gx^y>), Secret(B, A, gx^y)]->
+    [St_R_5(B, A, id, skB, pkA, gx, y), Out(<B, revealSign(<gx, 'g'^y>, skB), tag(h(gx^y), <'1', B>), pk(skB)>)]
+
+rule A_recv4:
+    [In(<B, s, t, pkB>), St_I_4(A, B, id, skA, pkB, x, gy)]
+    --[Eq(revealVerify(getMessage(s), <'g'^x, gy>, pkB), true), Eq(t, tag(h(gy^x), <'1', B>)), Commit(A, B, <'I', 'R', gy^x>), Secret(A, B, gy^x), Finish()]->
+    [St_I_5(A, B, id, skA, pkB, x, gy)]
+
+
+restriction Equality:
+    "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
+
+restriction Inequality:
+    "All m1 m2 #i. NotEq(m1, m2)@i ==> not(m1=m2)"
+
+// Should be Claim_commit ?
+// Verified
+lemma injectiveagreementINITIATOR:
+    "All a b t #i.
+        Commit(a,b,<'I','R',t>)@i &
+        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
+        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
+        & not (#i2 = #i)))"
+
+// Verified
+lemma Executability:
+    exists-trace
+    "Ex #i. 
+    Finish() @i &  not (Ex A #j. Reveal(A)@j)
+    "
+// Falsified
+lemma injectiveagreementRESPONDER:
+    "All a b t #i.
+    Commit(a,b,<'R', 'I',t>)@i &
+    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+    ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j
+    & not (Ex a2 b2 #i2. Commit(a2,b2,<'R','I',t>)@i2
+    & not (#i2 = #i)))"
+
+lemma noninjectiveagreementRESPONDER:
+    "All a b t #i.
+        Commit(a,b,<'R', 'I',t>)@i &
+        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+        ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j)"
+
+// Verified
+lemma secrecy_PFS:
+    "All A B x #i.
+    Secret(A,B,x)@i &
+    not ((Ex #r. Reveal(A)@r & r < i) | (Ex #r. Reveal(B)@r & r < i))
+    ==> not (Ex #j. K(x)@j)"
+
+end
