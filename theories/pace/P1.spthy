@@ -46,11 +46,6 @@ rule I_recv:
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
 
-restriction Unidirectional:
-    "All A B #i #j k1 k2.
-    Gen(A, B, k1)@i & Gen(B, A, k2)@j ==> not(k1=k2)"
-
-
 // Verified
 lemma injectiveagreementINITIATOR:
     "All a b t #i.

@@ -29,12 +29,12 @@ rule Rev:
 
 rule Init_I:
     [Fr(~id), !Ltk(A, B, kab), !Ltk(B, A, kba)]
-    --[Create_I(A, ~id)]->
+    --[Create_I(A, ~id), NotEq(kab, kba)]->
     [St_I_1(A, ~id, B, kab, kba)]
 
 rule Init_R:
     [Fr(~id), !Ltk(A, B, kab), !Ltk(B, A, kba)]
-    --[Create_R(B, ~id)]->
+    --[Create_R(B, ~id), NotEq(kab, kba)]->
     [St_R_1(B, ~id, A, kba, kab)]
 
 rule I_send1:
@@ -82,9 +82,8 @@ rule I_recv4:
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2"
 
-restriction Unidirectional:
-    "All A B #i #j k1 k2.
-    Gen(A, B, k1)@i & Gen(B, A, k2)@j ==> not(k1=k2)"
+restriction Inequality:
+    "All m1 m2 #i. NotEq(m1, m2)@i ==> not(m1=m2)"
 
 // make the attack nicer
 restriction onekeyperdirection:
