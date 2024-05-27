@@ -73,6 +73,7 @@ restriction Equality:
 restriction Inequality:
     "All m1 m2 #i. NotEq(m1, m2)@i ==> not(m1=m2)"
 
+// make attack nicer
 restriction MaxOneI:
     "All A B id1 id2 #i #j. (Create_I(A, id1)@i & Create_I(B, id2)@j) ==> id1 = id2"
     
@@ -88,9 +89,9 @@ lemma injectiveagreementINITIATOR:
 // Verified
 lemma Executability:
     exists-trace
-    "Ex #i. 
-    Finish() @i &  not (Ex A #j. Reveal(A)@j)
-    "
+    "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j)
+    & (All A B id1 id2 #i #j. (Create_I(A, id1)@i & Create_R(B, id2)@j) ==> not(B = A))"
+
 // Falsified
 lemma noninjectiveagreementRESPONDER:
     "All a b t #i.

@@ -52,8 +52,14 @@ rule A_recv2:
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2" 
 
+//make attack nicer
 restriction oneKey:
     "All A sk1 sk2 #i #j. (Gen(A, sk1)@i & Gen(A, sk2)@j) ==> sk1 = sk2"
+
+//make attack nicer
+restriction oneCreateIPerParty:
+    "All A id1 id2 #i #j. (Create_I(A, id1)@i & Create_I(A, id2)@j) ==> id1 = id2"
+
 // Verified
 lemma Executability:
     exists-trace "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j)
