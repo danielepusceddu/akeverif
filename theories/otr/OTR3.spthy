@@ -5,7 +5,7 @@ builtins: diffie-hellman, revealing-signing
 
 rule GenKey:
     [Fr(~sk)]
-    --[Gen(~sk)]->
+    --[Gen($A, ~sk)]->
     [!Ltk($A, ~sk), !Pk($A, pk(~sk)), Out(pk(~sk))]
 
 rule Rev:
@@ -38,7 +38,7 @@ rule B_recv1:
 
 rule B_send2:
     [Fr(~y), St_R_2(B, A, id, skB, pkA, gx)]
-    --[Running(A, B, <'I', 'R', gx^~y>), ReceivedPK(pkA)]->
+    --[Running(B, A, <'I', 'R', gx^~y>), Sent(pk(skB))]->
     [St_R_3(B, A, id, skB, pkA, gx, ~y), Out(<revealSign(<'g'^~y, A>, skB), pk(skB)>)]
 
 rule A_recv2:
@@ -46,28 +46,27 @@ rule A_recv2:
         gy = fst(s)
     in
     [In(<t, pkB>), St_I_2(A, B, id, skA, pkB, x)]
-    --[Commit(A, B, <'I', 'R', gy^x>), Eq(revealVerify(t, <gy, A>, pkB), true), Finish()]->
+    --[Commit(A, B, <'I', 'R', gy^x>), Eq(revealVerify(t, <gy, A>, pkB), true), Finish(), Recv(pkB)]->
     [St_I_3(A, B, id, skA, pkB, x, getMessage(t))]
 
 restriction Equality:
     "All m1 m2 #i. Eq(m1, m2)@i ==> m1=m2" 
 
+restriction oneKey:
+    "All A sk1 sk2 #i #j. (Gen(A, sk1)@i & Gen(A, sk2)@j) ==> sk1 = sk2"
 // Verified
 lemma Executability:
-    exists-trace "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j)"
+    exists-trace "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j)
+    & (All y #i. Recv(y)@i ==> Ex #j. Sent(y)@j)
+    & (All A B id1 id2 #i #j. (Create_R(A, id1)@i & Create_R(B, id2)@j) ==> id1 = id2)
+    & (All A B id1 id2 #i #j. (Create_I(A, id1)@i & Create_I(B, id2)@j) ==> id1 = id2)
+    & (All A id1 #i. Create_I(A, id1)@i ==> not (Ex id2 #j. Create_R(A, id2)@j))"
 
+// Falsified
 lemma noninjectiveagreementINITIATOR:
     "All a b t #i.
         Commit(a,b,<'I','R',t>)@i &
         not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
         ==> (Ex #j. Running(b,a,<'I','R',t>)@j)"
-
-lemma injectiveagreementINITIATOR:
-    "All a b t #i.
-        Commit(a,b,<'I','R',t>)@i &
-        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
-        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
-        & not (#i2 = #i)))"
 
 end
