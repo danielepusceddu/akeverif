@@ -14,8 +14,13 @@ rule (modulo E) Keygen:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) Rev:
+rule (modulo E) RevA:
    [ !Ltk( A, B, k ) ] --[ Reveal( A ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) RevB:
+   [ !Ltk( A, B, k ) ] --[ Reveal( B ) ]-> [ Out( k ) ]
 
   /* has exactly the trivial AC variant */
 
@@ -66,11 +71,6 @@ restriction Equality:
   "∀ m1 m2 #i. (Eq( m1, m2 ) @ #i) ⇒ (m1 = m2)"
   // safety formula
 
-restriction Unidirectional:
-  "∀ A B #i #j k1 k2.
-    ((Gen( A, B, k1 ) @ #i) ∧ (Gen( B, A, k2 ) @ #j)) ⇒ (¬(k1 = k2))"
-  // safety formula
-
 lemma injectiveagreementINITIATOR:
   all-traces
   "∀ a b t #i.
@@ -114,7 +114,10 @@ solve( St_I_2( a, id, b, k, t ) ▶₁ #i )
   next
     case c_tag
     solve( !KU( ~k ) @ #vk.2 )
-      case Rev
+      case RevA
+      by contradiction /* from formulas */
+    next
+      case RevB
       by contradiction /* from formulas */
     qed
   qed

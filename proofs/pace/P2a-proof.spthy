@@ -14,21 +14,26 @@ rule (modulo E) Keygen:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) Rev:
+rule (modulo E) RevA:
    [ !Ltk( A, B, k ) ] --[ Reveal( A ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) RevB:
+   [ !Ltk( A, B, k ) ] --[ Reveal( B ) ]-> [ Out( k ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) Init_I:
    [ Fr( ~id ), !Ltk( A, B, kab ), !Ltk( B, A, kba ) ]
-  --[ Create_I( A, ~id ) ]->
+  --[ Create_I( A, ~id ), NotEq( kab, kba ) ]->
    [ St_I_1( A, ~id, B, kab, kba ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) Init_R:
    [ Fr( ~id ), !Ltk( A, B, kab ), !Ltk( B, A, kba ) ]
-  --[ Create_R( B, ~id ) ]->
+  --[ Create_R( B, ~id ), NotEq( kab, kba ) ]->
    [ St_R_1( B, ~id, A, kba, kab ) ]
 
   /* has exactly the trivial AC variant */
@@ -95,9 +100,8 @@ restriction Equality:
   "∀ m1 m2 #i. (Eq( m1, m2 ) @ #i) ⇒ (m1 = m2)"
   // safety formula
 
-restriction Unidirectional:
-  "∀ A B #i #j k1 k2.
-    ((Gen( A, B, k1 ) @ #i) ∧ (Gen( B, A, k2 ) @ #j)) ⇒ (¬(k1 = k2))"
+restriction Inequality:
+  "∀ m1 m2 #i. (NotEq( m1, m2 ) @ #i) ⇒ (¬(m1 = m2))"
   // safety formula
 
 restriction onekeyperdirection:

@@ -14,21 +14,26 @@ rule (modulo E) Keygen:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) Rev:
+rule (modulo E) RevA:
    [ !Ltk( A, B, k ) ] --[ Reveal( A ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) RevB:
+   [ !Ltk( A, B, k ) ] --[ Reveal( B ) ]-> [ Out( k ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) Init_I:
    [ Fr( ~id ), !Ltk( A, B, kab ), !Ltk( B, A, kba ) ]
-  --[ Create_I( A, ~id ) ]->
+  --[ Create_I( A, ~id ), NotEq( kab, kba ) ]->
    [ St_I_1( A, ~id, B, kab, kba ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) Init_R:
    [ Fr( ~id ), !Ltk( A, B, kab ), !Ltk( B, A, kba ) ]
-  --[ Create_R( B, ~id ) ]->
+  --[ Create_R( B, ~id ), NotEq( kab, kba ) ]->
    [ St_R_1( B, ~id, A, kba, kab ) ]
 
   /* has exactly the trivial AC variant */
@@ -155,7 +160,10 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
     next
       case c_tag
       solve( !KU( ~k ) @ #vk.3 )
-        case Rev
+        case RevA
+        by contradiction /* from formulas */
+      next
+        case RevB
         by contradiction /* from formulas */
       qed
     qed
@@ -241,7 +249,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
     next
       case c_tag
       solve( !KU( ~k.1 ) @ #vk.3 )
-        case Rev
+        case RevA
+        by contradiction /* from formulas */
+      next
+        case RevB
         by contradiction /* from formulas */
       qed
     qed

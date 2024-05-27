@@ -15,10 +15,16 @@ rule Keygen:
     --[Gen($A, $B, ~k)]->
     [!Ltk($A, $B, ~k)]
     
-rule Rev:
+rule RevA:
     [!Ltk(A, B, k)]
     --[Reveal(A)]->
     [Out(k)]
+
+rule RevB:
+    [!Ltk(A, B, k)]
+    --[Reveal(B)]->
+    [Out(k)]
+
 
 rule Init_I:
     [Fr(~id), !Ltk(A, B, kab)]

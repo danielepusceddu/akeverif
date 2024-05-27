@@ -22,8 +22,13 @@ rule (modulo E) Keygen:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) Rev:
+rule (modulo E) RevA:
    [ !Ltk( A, B, k ) ] --[ Reveal( A ) ]-> [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) RevB:
+   [ !Ltk( A, B, k ) ] --[ Reveal( B ) ]-> [ Out( k ) ]
 
   /* has exactly the trivial AC variant */
 
@@ -650,7 +655,10 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
             solve( !KU( ~s ) @ #vk.8 )
               case I_send1
               solve( !KU( ~k ) @ #vk.11 )
-                case Rev
+                case RevA
+                by contradiction /* from formulas */
+              next
+                case RevB
                 by contradiction /* from formulas */
               qed
             qed
@@ -715,7 +723,10 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
               solve( !KU( ~s ) @ #vk.6 )
                 case I_send1
                 solve( !KU( ~k ) @ #vk.9 )
-                  case Rev
+                  case RevA
+                  by contradiction /* from formulas */
+                next
+                  case RevB
                   by contradiction /* from formulas */
                 qed
               qed
@@ -783,7 +794,10 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
                 solve( !KU( ~s ) @ #vk.9 )
                   case I_send1
                   solve( !KU( ~k ) @ #vk.12 )
-                    case Rev
+                    case RevA
+                    by contradiction /* from formulas */
+                  next
+                    case RevB
                     by contradiction /* from formulas */
                   qed
                 qed
@@ -1019,7 +1033,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
                   solve( !KU( h(~k) ) @ #vk.11 )
                     case c_h
                     solve( !KU( ~k ) @ #vk.12 )
-                      case Rev
+                      case RevA
+                      by contradiction /* from formulas */
+                    next
+                      case RevB
                       by contradiction /* from formulas */
                     qed
                   qed
@@ -1084,7 +1101,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
                     solve( !KU( h(~k) ) @ #vk.14 )
                       case c_h
                       solve( !KU( ~k ) @ #vk.15 )
-                        case Rev
+                        case RevA
+                        by contradiction /* from formulas */
+                      next
+                        case RevB
                         by contradiction /* from formulas */
                       qed
                     qed
@@ -1241,7 +1261,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           solve( !KU( h(~k) ) @ #vk.8 )
             case c_h
             solve( !KU( ~k ) @ #vk.9 )
-              case Rev
+              case RevA
+              by contradiction /* from formulas */
+            next
+              case RevB
               by contradiction /* from formulas */
             qed
           qed
@@ -1270,7 +1293,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
                   solve( !KU( ~s ) @ #vk.10 )
                     case I_send1
                     solve( !KU( ~k ) @ #vk.12 )
-                      case Rev
+                      case RevA
+                      by contradiction /* from formulas */
+                    next
+                      case RevB
                       by contradiction /* from formulas */
                     qed
                   qed
@@ -1368,7 +1394,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
                     solve( !KU( ~s ) @ #vk.13 )
                       case I_send1
                       solve( !KU( ~k ) @ #vk.15 )
-                        case Rev
+                        case RevA
+                        by contradiction /* from formulas */
+                      next
+                        case RevB
                         by contradiction /* from formulas */
                       qed
                     qed
@@ -1478,7 +1507,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           solve( !KU( h(~k) ) @ #vk.11 )
             case c_h
             solve( !KU( ~k ) @ #vk.12 )
-              case Rev
+              case RevA
+              by contradiction /* from formulas */
+            next
+              case RevB
               by contradiction /* from formulas */
             qed
           qed
@@ -1588,7 +1620,10 @@ solve( Secret( A, B, x ) @ #i )
               solve( !KU( ~s ) @ #vk.6 )
                 case I_send1
                 solve( !KU( ~k ) @ #vk.9 )
-                  case Rev
+                  case RevA
+                  by contradiction /* from formulas */
+                next
+                  case RevB
                   by contradiction /* from formulas */
                 qed
               qed
@@ -1656,7 +1691,10 @@ solve( Secret( A, B, x ) @ #i )
                 solve( !KU( ~s ) @ #vk.9 )
                   case I_send1
                   solve( !KU( ~k ) @ #vk.12 )
-                    case Rev
+                    case RevA
+                    by contradiction /* from formulas */
+                  next
+                    case RevB
                     by contradiction /* from formulas */
                   qed
                 qed
@@ -1820,7 +1858,10 @@ next
                   solve( !KU( h(~k) ) @ #vk.11 )
                     case c_h
                     solve( !KU( ~k ) @ #vk.12 )
-                      case Rev
+                      case RevA
+                      by contradiction /* from formulas */
+                    next
+                      case RevB
                       by contradiction /* from formulas */
                     qed
                   qed
@@ -1903,7 +1944,10 @@ next
                     solve( !KU( h(~k) ) @ #vk.14 )
                       case c_h
                       solve( !KU( ~k ) @ #vk.15 )
-                        case Rev
+                        case RevA
+                        by contradiction /* from formulas */
+                      next
+                        case RevB
                         by contradiction /* from formulas */
                       qed
                     qed
@@ -2057,7 +2101,10 @@ next
                   solve( !KU( ~s ) @ #vk.10 )
                     case I_send1
                     solve( !KU( ~k ) @ #vk.12 )
-                      case Rev
+                      case RevA
+                      by contradiction /* from formulas */
+                    next
+                      case RevB
                       by contradiction /* from formulas */
                     qed
                   qed
@@ -2155,7 +2202,10 @@ next
                     solve( !KU( ~s ) @ #vk.13 )
                       case I_send1
                       solve( !KU( ~k ) @ #vk.15 )
-                        case Rev
+                        case RevA
+                        by contradiction /* from formulas */
+                      next
+                        case RevB
                         by contradiction /* from formulas */
                       qed
                     qed
@@ -2265,7 +2315,10 @@ next
           solve( !KU( h(~k) ) @ #vk.11 )
             case c_h
             solve( !KU( ~k ) @ #vk.12 )
-              case Rev
+              case RevA
+              by contradiction /* from formulas */
+            next
+              case RevB
               by contradiction /* from formulas */
             qed
           qed
