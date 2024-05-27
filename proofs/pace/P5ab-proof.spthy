@@ -470,20 +470,20 @@ rule (modulo E) I_recv2:
 rule (modulo E) I_send3:
    [ St_I_3( A, id, B, kab, x, s, p, gy, k ) ]
   -->
-   [ St_I_4( A, id, B, kab, x, s, p, gy, k ), Out( tag(k, <'I', gy>) )
+   [ St_I_4( A, id, B, kab, x, s, p, gy, k ), Out( tag(<'I', gy>, k) )
    ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_recv3:
    [ In( t ), St_R_3( B, id, A, kab, gx, s, p, y, k ) ]
-  --[ Eq( t, tag(k, <'I', map(s, p)^y>) ) ]->
+  --[ Eq( t, tag(<'I', map(s, p)^y>, k) ) ]->
    [ St_R_4( B, id, A, kab, gx, s, p, y, k ) ]
 
   /*
   rule (modulo AC) R_recv3:
      [ In( t ), St_R_3( B, id, A, kab, gx, s, p, y, k ) ]
-    --[ Eq( t, tag(k, <'I', z>) ) ]->
+    --[ Eq( t, tag(<'I', z>, k) ) ]->
      [ St_R_4( B, id, A, kab, gx, s, p, y, k ) ]
     variants (modulo AC)
     1. p     = p.14
@@ -502,14 +502,14 @@ rule (modulo E) R_send4:
   --[
   Commit( B, A, <'R', 'I', gx, map(s, p)^y, k> ), Secret( B, A, k )
   ]->
-   [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(k, <'R', gx>) )
+   [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(<'R', gx>, k) )
    ]
 
   /*
   rule (modulo AC) R_send4:
      [ St_R_4( B, id, A, kab, gx, s, p, y, k ) ]
     --[ Commit( B, A, <'R', 'I', gx, z, k> ), Secret( B, A, k ) ]->
-     [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(k, <'R', gx>) )
+     [ St_R_5( B, id, A, kab, gx, s, p, y, k ), Out( tag(<'R', gx>, k) )
      ]
     variants (modulo AC)
     1. p     = p.15
@@ -527,7 +527,7 @@ rule (modulo E) I_recv4:
    [ In( t ), St_I_4( A, id, B, kab, x, s, p, gy, k ) ]
   --[
   Commit( A, B, <'I', 'R', map(s, p)^x, gy, k> ), Secret( A, B, k ),
-  Finish( ), Eq( t, tag(k, <'R', map(s, p)^x>) )
+  Finish( ), Eq( t, tag(<'R', map(s, p)^x>, k) )
   ]->
    [ St_I_5( A, id, B, kab, x, s, p, gy, k ) ]
 
@@ -536,7 +536,7 @@ rule (modulo E) I_recv4:
      [ In( t ), St_I_4( A, id, B, kab, x, s, p, gy, k ) ]
     --[
     Commit( A, B, <'I', 'R', z, gy, k> ), Secret( A, B, k ), Finish( ),
-    Eq( t, tag(k, <'R', z>) )
+    Eq( t, tag(<'R', z>, k) )
     ]->
      [ St_I_5( A, id, B, kab, x, s, p, gy, k ) ]
     variants (modulo AC)
@@ -586,15 +586,15 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   case I_recv4
   solve( St_I_4( a, id, b, kab, x, s, p, gy, k ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(h(z), <'R', map(~s, ~p)^~x>) ) @ #vk )
+    solve( !KU( tag(<'R', map(~s, ~p)^~x>, h(z)) ) @ #vk )
       case R_send4
       solve( splitEqs(2) )
         case split_case_1
-        solve( !KU( tag(h(map(~s, ~p)^(~x*~y)),
-                        <'I', map(sdec(c, h(~k.1)), p.1)^~y>)
+        solve( !KU( tag(<'I', map(sdec(c, h(~k.1)), p.1)^~y>,
+                        h(map(~s, ~p)^(~x*~y)))
                ) @ #vk.2 )
           case c_tag
-          solve( !KU( h(map(~s, ~p)^(~x*~y)) ) @ #vk.8 )
+          solve( !KU( h(map(~s, ~p)^(~x*~y)) ) @ #vk.9 )
             case c_h
             solve( !KU( map(~s, ~p)^(~x*~y) ) @ #vk.12 )
               case I_send1_case_1
@@ -613,7 +613,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
         qed
       next
         case split_case_2
-        solve( !KU( tag(h(map(~s, ~p)^(~x*~y)), <'I', map(s.1, p.1)^~y>)
+        solve( !KU( tag(<'I', map(s.1, p.1)^~y>, h(map(~s, ~p)^(~x*~y)))
                ) @ #vk.2 )
           case I_send3
           solve( !KU( senc(~s, h(~k.1)) ) @ #vk.7 )
@@ -657,7 +657,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           qed
         next
           case c_tag
-          solve( !KU( h(map(~s, ~p)^(~x*~y)) ) @ #vk.8 )
+          solve( !KU( h(map(~s, ~p)^(~x*~y)) ) @ #vk.9 )
             case c_h
             solve( !KU( map(~s, ~p)^(~x*~y) ) @ #vk.12 )
               case I_send1_case_1
@@ -700,7 +700,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
         qed
       next
         case split_case_2
-        solve( !KU( h(gy^~x) ) @ #vk.2 )
+        solve( !KU( h(gy^~x) ) @ #vk.3 )
           case c_h
           solve( !KU( gy^~x ) @ #vk.6 )
             case I_send1_case_1
@@ -733,9 +733,9 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
         qed
       next
         case split_case_3
-        solve( !KU( h(x^(~x.1*x.2)) ) @ #vk.2 )
+        solve( !KU( h(x.1^(~x*x.2)) ) @ #vk.3 )
           case c_h
-          solve( !KU( x^(~x.1*x.2) ) @ #vk.6 )
+          solve( !KU( x.1^(~x*x.2) ) @ #vk.6 )
             case I_send1_case_1
             by solve( !KU( ~x ) @ #vk.7 )
           next
@@ -818,17 +818,17 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
             by solve( !KU( ~y ) @ #vk.11 )
           next
             case c_exp
-            by solve( !KU( ~x.1 ) @ #vk.9 )
+            by solve( !KU( ~x ) @ #vk.9 )
           qed
         qed
       next
         case split_case_4
-        solve( !KU( x^(x.1*inv(~x.2)) ) @ #vk.1 )
+        solve( !KU( x.1^(x.2*inv(~x)) ) @ #vk.1 )
           case I_send1_case_1
-          by solve( !KU( ~x.1 ) @ #vk.7 )
+          by solve( !KU( ~x ) @ #vk.7 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.2 ) @ #vk.9 )
+          by solve( !KU( ~x ) @ #vk.9 )
         next
           case I_send1_case_3
           by solve( !KU( ~x.2 ) @ #vk.9 )
@@ -837,10 +837,10 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           by solve( !KU( ~x.2 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.1 ) @ #vk.12 )
+          by solve( !KU( ~x ) @ #vk.12 )
         next
           case R_send2_case_2
-          by solve( !KU( ~x.1 ) @ #vk.14 )
+          by solve( !KU( ~x ) @ #vk.14 )
         next
           case R_send2_case_3
           by solve( !KU( ~y ) @ #vk.9 )
@@ -849,11 +849,11 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.10 )
+          by solve( !KU( ~x ) @ #vk.10 )
         qed
       next
         case split_case_5
-        solve( !KU( x^inv((x.1*~x.2)) ) @ #vk.1 )
+        solve( !KU( x.1^inv((~x*x.2)) ) @ #vk.1 )
           case I_send1_case_1
           by solve( !KU( ~x.2 ) @ #vk.8 )
         next
@@ -867,16 +867,16 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           by solve( !KU( ~y ) @ #vk.9 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.10 )
+          by solve( !KU( ~x ) @ #vk.9 )
         qed
       next
         case split_case_6
-        solve( !KU( x^(x.1*inv((x.2*~x.3))) ) @ #vk.1 )
+        solve( !KU( x.1^(x.2*inv((~x*x.3))) ) @ #vk.1 )
           case I_send1_case_1
-          by solve( !KU( ~x.2 ) @ #vk.9 )
+          by solve( !KU( ~x ) @ #vk.8 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.3 ) @ #vk.11 )
+          by solve( !KU( ~x ) @ #vk.10 )
         next
           case I_send1_case_3
           by solve( !KU( ~x.3 ) @ #vk.9 )
@@ -885,10 +885,10 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           by solve( !KU( ~x.3 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.2 ) @ #vk.14 )
+          by solve( !KU( ~x ) @ #vk.13 )
         next
           case R_send2_case_2
-          by solve( !KU( ~x.2 ) @ #vk.16 )
+          by solve( !KU( ~x ) @ #vk.15 )
         next
           case R_send2_case_3
           by solve( !KU( ~y ) @ #vk.9 )
@@ -897,7 +897,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.3 ) @ #vk.12 )
+          by solve( !KU( ~x ) @ #vk.11 )
         qed
       next
         case split_case_7
@@ -917,11 +917,11 @@ guarded formula characterizing all satisfying traces:
 simplify
 solve( St_I_4( A, id, B, kab, x, s, p, gy, k ) ▶₁ #i )
   case I_send3
-  solve( !KU( tag(h(z), <'R', map(~s, ~p)^~x>) ) @ #vk )
+  solve( !KU( tag(<'R', map(~s, ~p)^~x>, h(z)) ) @ #vk )
     case R_send4
     solve( splitEqs(2) )
       case split_case_2
-      solve( !KU( tag(h(map(~s, ~p)^(~x*~y)), <'I', map(s.1, p.1)^~y>)
+      solve( !KU( tag(<'I', map(s.1, p.1)^~y>, h(map(~s, ~p)^(~x*~y)))
              ) @ #vk.2 )
         case I_send3
         solve( !KU( senc(~s, h(~k.1)) ) @ #vk.7 )
@@ -971,7 +971,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
     case R_recv3
     solve( splitEqs(1) )
       case split_case_1
-      solve( !KU( tag(h(z), <'I', map(sdec(c, h(~k)), p)^~y>) ) @ #vk )
+      solve( !KU( tag(<'I', map(sdec(c, h(~k)), p)^~y>, h(z)) ) @ #vk )
         case I_send3
         solve( !KU( map(sdec(c, h(~k)), p)^~x ) @ #vk.2 )
           case R_send2
@@ -1002,7 +1002,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           qed
         next
           case split_case_2
-          solve( !KU( h(gx^~y) ) @ #vk.6 )
+          solve( !KU( h(gx^~y) ) @ #vk.7 )
             case c_h
             solve( !KU( gx^~y ) @ #vk.10 )
               case I_send1
@@ -1035,7 +1035,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           qed
         next
           case split_case_3
-          solve( !KU( h(x^(~y*x.1)) ) @ #vk.6 )
+          solve( !KU( h(x^(~y*x.1)) ) @ #vk.7 )
             case c_h
             solve( !KU( x^(~y*x.1) ) @ #vk.10 )
               case I_send1_case_1
@@ -1193,7 +1193,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
       qed
     next
       case split_case_2
-      solve( !KU( tag(h(z), <'I', map(s, p)^~y>) ) @ #vk )
+      solve( !KU( tag(<'I', map(s, p)^~y>, h(z)) ) @ #vk )
         case I_send3
         solve( !KU( senc(s, h(~k)) ) @ #vk.5 )
           case I_send1
@@ -1252,7 +1252,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
           case I_send1
           solve( splitEqs(2) )
             case split_case_1
-            solve( !KU( h(gx^~y) ) @ #vk.6 )
+            solve( !KU( h(gx^~y) ) @ #vk.7 )
               case c_h
               solve( !KU( gx^~y ) @ #vk.10 )
                 case I_send1
@@ -1303,7 +1303,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
             qed
           next
             case split_case_3
-            solve( !KU( h(x^(~y*x.1)) ) @ #vk.6 )
+            solve( !KU( h(x^(~y*x.1)) ) @ #vk.7 )
               case c_h
               solve( !KU( x^(~y*x.1) ) @ #vk.10 )
                 case I_send1_case_1
@@ -1509,7 +1509,7 @@ solve( Secret( A, B, x ) @ #i )
   case I_recv4
   solve( St_I_4( A, id, B, kab, x.1, s, p, gy, x ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(h(z), <'R', map(~s, ~p)^~x>) ) @ #vk.1 )
+    solve( !KU( tag(<'R', map(~s, ~p)^~x>, h(z)) ) @ #vk.1 )
       case R_send4
       solve( splitEqs(2) )
         case split_case_1
@@ -1606,9 +1606,9 @@ solve( Secret( A, B, x ) @ #i )
         qed
       next
         case split_case_3
-        solve( !KU( h(x^(~x.1*x.2)) ) @ #vk.1 )
+        solve( !KU( h(x.1^(~x*x.2)) ) @ #vk.1 )
           case c_h
-          solve( !KU( x^(~x.1*x.2) ) @ #vk.6 )
+          solve( !KU( x.1^(~x*x.2) ) @ #vk.6 )
             case I_send1_case_1
             by solve( !KU( ~x ) @ #vk.7 )
           next
@@ -1691,17 +1691,17 @@ solve( Secret( A, B, x ) @ #i )
             by solve( !KU( ~y ) @ #vk.11 )
           next
             case c_exp
-            by solve( !KU( ~x.1 ) @ #vk.9 )
+            by solve( !KU( ~x ) @ #vk.9 )
           qed
         qed
       next
         case split_case_4
-        solve( !KU( x^(x.1*inv(~x.2)) ) @ #vk.2 )
+        solve( !KU( x.1^(x.2*inv(~x)) ) @ #vk.2 )
           case I_send1_case_1
-          by solve( !KU( ~x.1 ) @ #vk.7 )
+          by solve( !KU( ~x ) @ #vk.7 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.2 ) @ #vk.9 )
+          by solve( !KU( ~x ) @ #vk.9 )
         next
           case I_send1_case_3
           by solve( !KU( ~x.2 ) @ #vk.9 )
@@ -1710,10 +1710,10 @@ solve( Secret( A, B, x ) @ #i )
           by solve( !KU( ~x.2 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.1 ) @ #vk.12 )
+          by solve( !KU( ~x ) @ #vk.12 )
         next
           case R_send2_case_2
-          by solve( !KU( ~x.1 ) @ #vk.14 )
+          by solve( !KU( ~x ) @ #vk.14 )
         next
           case R_send2_case_3
           by solve( !KU( ~y ) @ #vk.9 )
@@ -1722,11 +1722,11 @@ solve( Secret( A, B, x ) @ #i )
           by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.10 )
+          by solve( !KU( ~x ) @ #vk.10 )
         qed
       next
         case split_case_5
-        solve( !KU( x^inv((x.1*~x.2)) ) @ #vk.2 )
+        solve( !KU( x.1^inv((~x*x.2)) ) @ #vk.2 )
           case I_send1_case_1
           by solve( !KU( ~x.2 ) @ #vk.8 )
         next
@@ -1740,16 +1740,16 @@ solve( Secret( A, B, x ) @ #i )
           by solve( !KU( ~y ) @ #vk.9 )
         next
           case c_exp
-          by solve( !KU( ~x.2 ) @ #vk.10 )
+          by solve( !KU( ~x ) @ #vk.9 )
         qed
       next
         case split_case_6
-        solve( !KU( x^(x.1*inv((x.2*~x.3))) ) @ #vk.2 )
+        solve( !KU( x.1^(x.2*inv((~x*x.3))) ) @ #vk.2 )
           case I_send1_case_1
-          by solve( !KU( ~x.2 ) @ #vk.9 )
+          by solve( !KU( ~x ) @ #vk.8 )
         next
           case I_send1_case_2
-          by solve( !KU( ~x.3 ) @ #vk.11 )
+          by solve( !KU( ~x ) @ #vk.10 )
         next
           case I_send1_case_3
           by solve( !KU( ~x.3 ) @ #vk.9 )
@@ -1758,10 +1758,10 @@ solve( Secret( A, B, x ) @ #i )
           by solve( !KU( ~x.3 ) @ #vk.10 )
         next
           case R_send2_case_1
-          by solve( !KU( ~x.2 ) @ #vk.14 )
+          by solve( !KU( ~x ) @ #vk.13 )
         next
           case R_send2_case_2
-          by solve( !KU( ~x.2 ) @ #vk.16 )
+          by solve( !KU( ~x ) @ #vk.15 )
         next
           case R_send2_case_3
           by solve( !KU( ~y ) @ #vk.9 )
@@ -1770,7 +1770,7 @@ solve( Secret( A, B, x ) @ #i )
           by solve( !KU( ~y ) @ #vk.10 )
         next
           case c_exp
-          by solve( !KU( ~x.3 ) @ #vk.12 )
+          by solve( !KU( ~x ) @ #vk.11 )
         qed
       next
         case split_case_7
@@ -1784,7 +1784,7 @@ next
     case R_recv3
     solve( splitEqs(1) )
       case split_case_1
-      solve( !KU( tag(h(z), <'I', map(sdec(c, h(~k)), p)^~y>) ) @ #vk.1 )
+      solve( !KU( tag(<'I', map(sdec(c, h(~k)), p)^~y>, h(z)) ) @ #vk.1 )
         case I_send3
         solve( !KU( h(map(sdec(c, h(~k)), p)^(~x*~y)) ) @ #vk.1 )
           case c_h
@@ -2012,7 +2012,7 @@ next
       qed
     next
       case split_case_2
-      solve( !KU( tag(h(z), <'I', map(s, p)^~y>) ) @ #vk.1 )
+      solve( !KU( tag(<'I', map(s, p)^~y>, h(z)) ) @ #vk.1 )
         case I_send3
         solve( !KU( h(map(s, p)^(~x*~y)) ) @ #vk.1 )
           case c_h

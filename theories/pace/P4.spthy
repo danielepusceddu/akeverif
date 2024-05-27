@@ -58,21 +58,21 @@ rule I_recv2:
 rule I_send3:
     [St_I_3(A, id, B, kab, x, s, y, k)]
     -->
-    [St_I_4(A, id, B, kab, x, s, y, k), Out(tag(k, <'I', 'hello'>))]
+    [St_I_4(A, id, B, kab, x, s, y, k), Out(tag(<'I', 'hello'>, k))]
 
 rule R_recv3:
     [In(t), St_R_3(B, id, A, kab, x, s, y, k)]
-    --[Eq(t, tag(k, <'I', 'hello'>))]->
+    --[Eq(t, tag(<'I', 'hello'>, k))]->
     [St_R_4(B, id, A, kab, x, s, y, k)]
 
 rule R_send4:
     [St_R_4(B, id, A, kab, x, s, y, k)]
     --[Commit(B, A, <'R', 'I', <x, y, k>>), Secret(B, A, k)]->
-    [St_R_5(B, id, A, kab, x, s, y, k), Out(tag(k, <'R', 'hello'>))]
+    [St_R_5(B, id, A, kab, x, s, y, k), Out(tag(<'R', 'hello'>, k))]
 
 rule I_recv4:
     [In(t), St_I_4(A, id, B, kab, x, s, y, k)]
-    --[Commit(A, B, <'I', 'R', <x, y, k>>), Secret(A, B, k), Finish(), Eq(t, tag(k, <'R', 'hello'>))]->
+    --[Commit(A, B, <'I', 'R', <x, y, k>>), Secret(A, B, k), Finish(), Eq(t, tag(<'R', 'hello'>, k))]->
     [St_I_5(A, id, B, kab, x, s, y, k)]
 
 

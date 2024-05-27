@@ -92,29 +92,23 @@ restriction onekeyperdirection:
     Gen(A, B, k1)@i & Gen(A, B, k2)@j ==> #i = #j"
 
 
-// Falsified
-lemma injectiveagreementINITIATOR:
-    "All a b t #i.
-        Commit(a,b,<'I','R',t>)@i &
-        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
-        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
-        & not (#i2 = #i)))"
-
 // Verified
 lemma Executability:
     exists-trace
-    "Ex #i. 
-    Finish() @i &  not (Ex A #j. Reveal(A)@j)
-    "
+    "Ex #i. Finish()@i &  not (Ex A #j. Reveal(A)@j) & (All A B id1 id2 #i #j. (Create_I(A, id1)@i & Create_I(B, id2)@j) ==> id1 = id2)"
 
 // Falsified
-lemma injectiveagreementRESPONDER:
+lemma noninjectiveagreementINITIATOR:
+    "All a b t #i.
+        Commit(a,b,<'I','R',t>)@i &
+        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
+        ==> (Ex #j. Running(b,a,<'I','R',t>)@j)"
+
+// Falsified
+lemma noninjectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &
     not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-    ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j
-    & not (Ex a2 b2 #i2. Commit(a2,b2,<'R','I',t>)@i2
-    & not (#i2 = #i)))"
+    ==> (Ex #j. Running(b,a,<'R', 'I',t>)@j)"
 
 end

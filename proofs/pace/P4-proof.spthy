@@ -83,14 +83,14 @@ rule (modulo E) I_send3:
    [ St_I_3( A, id, B, kab, x, s, y, k ) ]
   -->
    [
-   St_I_4( A, id, B, kab, x, s, y, k ), Out( tag(k, <'I', 'hello'>) )
+   St_I_4( A, id, B, kab, x, s, y, k ), Out( tag(<'I', 'hello'>, k) )
    ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_recv3:
    [ In( t ), St_R_3( B, id, A, kab, x, s, y, k ) ]
-  --[ Eq( t, tag(k, <'I', 'hello'>) ) ]->
+  --[ Eq( t, tag(<'I', 'hello'>, k) ) ]->
    [ St_R_4( B, id, A, kab, x, s, y, k ) ]
 
   /* has exactly the trivial AC variant */
@@ -99,7 +99,7 @@ rule (modulo E) R_send4:
    [ St_R_4( B, id, A, kab, x, s, y, k ) ]
   --[ Commit( B, A, <'R', 'I', x, y, k> ), Secret( B, A, k ) ]->
    [
-   St_R_5( B, id, A, kab, x, s, y, k ), Out( tag(k, <'R', 'hello'>) )
+   St_R_5( B, id, A, kab, x, s, y, k ), Out( tag(<'R', 'hello'>, k) )
    ]
 
   /* has exactly the trivial AC variant */
@@ -108,7 +108,7 @@ rule (modulo E) I_recv4:
    [ In( t ), St_I_4( A, id, B, kab, x, s, y, k ) ]
   --[
   Commit( A, B, <'I', 'R', x, y, k> ), Secret( A, B, k ), Finish( ),
-  Eq( t, tag(k, <'R', 'hello'>) )
+  Eq( t, tag(<'R', 'hello'>, k) )
   ]->
    [ St_I_5( A, id, B, kab, x, s, y, k ) ]
 
@@ -145,7 +145,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   case I_recv4
   solve( St_I_4( a, id, b, kab, x, s, y, k ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(kdf(~s, ~x, y), <'R', 'hello'>) ) @ #vk )
+    solve( !KU( tag(<'R', 'hello'>, kdf(~s, ~x, y)) ) @ #vk )
       case R_send4
       solve( !KU( senc(~s, h(~k.1)) ) @ #vk.5 )
         case I_send1
@@ -184,7 +184,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
       qed
     next
       case c_tag
-      solve( !KU( kdf(~s, ~x, y) ) @ #vk.2 )
+      solve( !KU( kdf(~s, ~x, y) ) @ #vk.3 )
         case c_kdf
         solve( !KU( ~s ) @ #vk.6 )
           case I_send1
@@ -208,7 +208,7 @@ guarded formula characterizing all satisfying traces:
 simplify
 solve( St_I_4( A, id, B, kab, x, s, y, k ) ▶₁ #i )
   case I_send3
-  solve( !KU( tag(kdf(~s, ~x, y), <'R', 'hello'>) ) @ #vk )
+  solve( !KU( tag(<'R', 'hello'>, kdf(~s, ~x, y)) ) @ #vk )
     case R_send4
     solve( !KU( senc(~s, h(~k.1)) ) @ #vk.5 )
       case I_send1
@@ -216,7 +216,7 @@ solve( St_I_4( A, id, B, kab, x, s, y, k ) ▶₁ #i )
         case I_send1
         solve( !KU( ~y ) @ #vk.4 )
           case R_send2
-          solve( !KU( tag(kdf(~s, ~x, ~y), <'I', 'hello'>) ) @ #vk.5 )
+          solve( !KU( tag(<'I', 'hello'>, kdf(~s, ~x, ~y)) ) @ #vk.5 )
             case I_send3
             SOLVED // trace found
           qed
@@ -255,10 +255,10 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
     case R_recv3
     solve( splitEqs(1) )
       case split_case_1
-      solve( !KU( tag(kdf(sdec(c, h(~k)), x, ~y), <'I', 'hello'>)
+      solve( !KU( tag(<'I', 'hello'>, kdf(sdec(c, h(~k)), x, ~y))
              ) @ #vk )
         case c_tag
-        solve( !KU( kdf(sdec(c, h(~k)), x, ~y) ) @ #vk.4 )
+        solve( !KU( kdf(sdec(c, h(~k)), x, ~y) ) @ #vk.5 )
           case c_kdf
           solve( !KU( sdec(c, h(~k)) ) @ #vk.8 )
             case c_sdec
@@ -274,7 +274,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
       qed
     next
       case split_case_2
-      solve( !KU( tag(kdf(s, x, ~y), <'I', 'hello'>) ) @ #vk )
+      solve( !KU( tag(<'I', 'hello'>, kdf(s, x, ~y)) ) @ #vk )
         case I_send3
         solve( !KU( senc(~s, h(~k)) ) @ #vk.3 )
           case I_send1
@@ -319,7 +319,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
         qed
       next
         case c_tag
-        solve( !KU( kdf(s, x, ~y) ) @ #vk.4 )
+        solve( !KU( kdf(s, x, ~y) ) @ #vk.5 )
           case c_kdf
           solve( !KU( senc(s, h(~k)) ) @ #vk.4 )
             case I_send1
@@ -400,7 +400,7 @@ next
       case split_case_2
       solve( !KU( kdf(s, x, ~y) ) @ #vk )
         case c_kdf
-        solve( !KU( tag(kdf(s, x, ~y), <'I', 'hello'>) ) @ #vk.1 )
+        solve( !KU( tag(<'I', 'hello'>, kdf(s, x, ~y)) ) @ #vk.1 )
           case I_send3
           solve( !KU( ~s ) @ #vk.5 )
             case I_send1

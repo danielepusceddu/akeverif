@@ -84,7 +84,7 @@ rule (modulo E) B_recv1:
 
 rule (modulo E) B_send2:
    [ Fr( ~y ), St_R_2( B, A, id, skB, pkA, gx ) ]
-  -->
+  --[ Sent( pk(skB) ) ]->
    [
    St_R_3( B, A, id, skB, pkA, gx, ~y ),
    Out( <revealSign('g'^~y, skB), pk(skB)> )
@@ -94,13 +94,16 @@ rule (modulo E) B_send2:
 
 rule (modulo E) A_recv2:
    [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
-  --[ Eq( revealVerify(t, getMessage(t), pkB), true ), Finish( ) ]->
+  --[
+  Eq( revealVerify(t, getMessage(t), pkB), true ), Finish( ),
+  Recv( pkB )
+  ]->
    [ St_I_3( A, B, id, skA, pkB, x, getMessage(t) ) ]
 
   /*
   rule (modulo AC) A_recv2:
      [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
-    --[ Eq( z.1, true ), Finish( ) ]->
+    --[ Eq( z.1, true ), Finish( ), Recv( pkB ) ]->
      [ St_I_3( A, B, id, skA, pkB, x, z ) ]
     variants (modulo AC)
     1. pkB   = pkB.10
@@ -125,19 +128,55 @@ restriction Equality:
 
 lemma Executability:
   exists-trace
-  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+  "∃ #i.
+    (((((Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))) ∧
+       (∀ y #i.1. (Recv( y ) @ #i.1) ⇒ (∃ #j. Sent( y ) @ #j))) ∧
+      (∀ A B id1 id2 #i.1 #j.
+        ((Create_R( A, id1 ) @ #i.1) ∧ (Create_R( B, id2 ) @ #j)) ⇒
+        (id1 = id2))) ∧
+     (∀ A B id1 id2 #i.1 #j.
+       ((Create_I( A, id1 ) @ #i.1) ∧ (Create_I( B, id2 ) @ #j)) ⇒
+       (id1 = id2))) ∧
+    (∀ A id1 #i.1.
+      (Create_I( A, id1 ) @ #i.1) ⇒
+      (¬(∃ id2 #j. Create_R( A, id2 ) @ #j)))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+"∃ #i.
+  (Finish( ) @ #i)
+ ∧
+  (∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥) ∧
+  (∀ y #i.1. (Recv( y ) @ #i.1) ⇒ ∃ #j. (Sent( y ) @ #j)) ∧
+  (∀ A B id1 id2 #i.1 #j.
+    (Create_R( A, id1 ) @ #i.1) ∧ (Create_R( B, id2 ) @ #j)
+   ⇒
+    id1 = id2) ∧
+  (∀ A B id1 id2 #i.1 #j.
+    (Create_I( A, id1 ) @ #i.1) ∧ (Create_I( B, id2 ) @ #j)
+   ⇒
+    id1 = id2) ∧
+  (∀ A id1 #i.1.
+    (Create_I( A, id1 ) @ #i.1)
+   ⇒
+    ∀ id2 #j. (Create_R( A, id2 ) @ #j) ⇒ ⊥)"
 */
 simplify
 solve( St_I_2( A, B, id, skA, pk(x), x.1 ) ▶₁ #i )
   case A_send1
-  solve( !KU( revealSign(z, ~sk) ) @ #vk.1 )
-    case A_send1
-    solve( !KU( pk(~sk) ) @ #vk.2 )
-      case A_send1
-      SOLVED // trace found
+  solve( St_R_2( B, A.2, id.1, ~sk, pkA, gx ) ▶₁ #j )
+    case B_recv1
+    solve( !KU( revealSign(z, ~sk) ) @ #vk.1 )
+      case B_send2
+      solve( !KU( revealSign(gx, ~sk.2) ) @ #vk.4 )
+        case A_send1
+        solve( !KU( pk(~sk) ) @ #vk.3 )
+          case B_send2
+          solve( !KU( pk(~sk.1) ) @ #vk.5 )
+            case A_send1
+            SOLVED // trace found
+          qed
+        qed
+      qed
     qed
   qed
 qed

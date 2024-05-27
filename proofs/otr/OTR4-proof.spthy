@@ -2401,6 +2401,12 @@ restriction Inequality:
   "∀ m1 m2 #i. (NotEq( m1, m2 ) @ #i) ⇒ (¬(m1 = m2))"
   // safety formula
 
+restriction MaxOneI:
+  "∀ A B id1 id2 #i #j.
+    ((Create_I( A, id1 ) @ #i) ∧ (Create_I( B, id2 ) @ #j)) ⇒
+    (id1 = id2)"
+  // safety formula
+
 lemma injectiveagreementINITIATOR:
   all-traces
   "∀ a b t #i.
@@ -2430,46 +2436,34 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
     case A_send3
     solve( !KU( revealSign(<'g'^~x, gy>, ~sk) ) @ #vk.3 )
       case A_send3
-      solve( !KU( tag(h('g'^(~x*~x.1)), <'1', $A>) ) @ #vk.5 )
+      solve( !KU( tag(h('g'^(~x*~x)), <'1', $A>) ) @ #vk.5 )
         case B_send4
         solve( splitEqs(5) )
           case split
-          solve( !KU( 'g'^(~x*~x.1*inv(~y)) ) @ #vk.16 )
-            case A_send1_case_1
-            by solve( !KU( ~x ) @ #vk.18 )
+          solve( !KU( 'g'^(~x*~x*inv(~y)) ) @ #vk.15 )
+            case A_send1
+            by solve( !KU( ~x ) @ #vk.17 )
           next
-            case A_send1_case_2
-            by solve( !KU( ~x.1 ) @ #vk.18 )
-          next
-            case A_send3_case_1
-            by solve( !KU( ~x ) @ #vk.18 )
-          next
-            case A_send3_case_2
-            by solve( !KU( ~x.1 ) @ #vk.18 )
+            case A_send3
+            by contradiction /* cyclic */
           next
             case c_exp
-            by solve( !KU( ~x ) @ #vk.19 )
+            by solve( !KU( ~x ) @ #vk.18 )
           qed
         qed
       next
         case c_tag
-        solve( !KU( h('g'^(~x*~x.1)) ) @ #vk.10 )
+        solve( !KU( h('g'^(~x*~x)) ) @ #vk.9 )
           case c_h
-          solve( !KU( 'g'^(~x*~x.1) ) @ #vk.12 )
-            case A_send1_case_1
-            by solve( !KU( ~x ) @ #vk.13 )
+          solve( !KU( 'g'^(~x*~x) ) @ #vk.11 )
+            case A_send1
+            by solve( !KU( ~x ) @ #vk.12 )
           next
-            case A_send1_case_2
-            by solve( !KU( ~x.1 ) @ #vk.13 )
-          next
-            case A_send3_case_1
-            by solve( !KU( ~x ) @ #vk.13 )
-          next
-            case A_send3_case_2
-            by solve( !KU( ~x.1 ) @ #vk.13 )
+            case A_send3
+            by contradiction /* cyclic */
           next
             case c_exp
-            by solve( !KU( ~x ) @ #vk.15 )
+            by solve( !KU( ~x ) @ #vk.14 )
           qed
         qed
       qed
@@ -2483,28 +2477,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
             case A_recv4
             solve( St_I_4( a2, b2, id.1, skA, pk(x.2), x.3, gy ) ▶₁ #i2 )
               case A_send3
-              solve( splitEqs(3) )
-                case split_case_1
-                by contradiction /* cyclic */
-              next
-                case split_case_2
-                solve( !KU( 'g'^(~x*~y*inv(~x.1)) ) @ #vk.23 )
-                  case A_send1
-                  by solve( !KU( ~y ) @ #vk.25 )
-                next
-                  case A_send3
-                  by solve( !KU( ~y ) @ #vk.25 )
-                next
-                  case B_send2
-                  by solve( !KU( ~x ) @ #vk.25 )
-                next
-                  case B_send4
-                  by contradiction /* cyclic */
-                next
-                  case c_exp
-                  by solve( !KU( ~x ) @ #vk.26 )
-                qed
-              qed
+              by contradiction /* cyclic */
             qed
           qed
         next
@@ -2513,28 +2486,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
             case A_recv4
             solve( St_I_4( a2, b2, id.1, skA, pk(x.2), x.3, gy ) ▶₁ #i2 )
               case A_send3
-              solve( splitEqs(3) )
-                case split_case_1
-                by contradiction /* cyclic */
-              next
-                case split_case_2
-                solve( !KU( 'g'^(~x*~y*inv(~x.1)) ) @ #vk.23 )
-                  case A_send1
-                  by solve( !KU( ~y ) @ #vk.25 )
-                next
-                  case A_send3
-                  by solve( !KU( ~y ) @ #vk.25 )
-                next
-                  case B_send2
-                  by solve( !KU( ~x ) @ #vk.25 )
-                next
-                  case B_send4
-                  by contradiction /* cyclic */
-                next
-                  case c_exp
-                  by solve( !KU( ~x ) @ #vk.26 )
-                qed
-              qed
+              by contradiction /* cyclic */
             qed
           qed
         qed
@@ -2544,28 +2496,7 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
           case Rev
           solve( !KU( tag(h('g'^(~x*~y)), <'0', $A.2>) ) @ #vk.15 )
             case A_send3
-            solve( splitEqs(4) )
-              case split_case_1
-              by contradiction /* from formulas */
-            next
-              case split_case_2
-              solve( !KU( 'g'^(~x*~y*inv(~x.1)) ) @ #vk.18 )
-                case A_send1
-                by solve( !KU( ~y ) @ #vk.20 )
-              next
-                case A_send3
-                by solve( !KU( ~y ) @ #vk.20 )
-              next
-                case B_send2
-                by solve( !KU( ~x ) @ #vk.20 )
-              next
-                case B_send4
-                by contradiction /* cyclic */
-              next
-                case c_exp
-                by solve( !KU( ~x ) @ #vk.21 )
-              qed
-            qed
+            by contradiction /* from formulas */
           next
             case c_tag
             solve( !KU( h('g'^(~x*~y)) ) @ #vk.19 )
@@ -2620,25 +2551,13 @@ solve( St_I_4( A, B, id, skA, pk(x.1), x.2, gy ) ▶₁ #i )
           case split_case_1
           solve( !KU( pk(~sk) ) @ #vk.9 )
             case A_send3
-            solve( splitEqs(7) )
-              case split_case_1
-              solve( !KU( tag(h('g'^(~x*~y)), <'0', $A.1>) ) @ #vk.13 )
-                case A_send3
-                solve( splitEqs(11) )
-                  case split_case_1
-                  solve( !KU( pk(~sk.1) ) @ #vk.14 )
-                    case A_send3
-                    solve( splitEqs(13) )
-                      case split_case_1
-                      solve( !KU( 'g'^~x ) @ #vk.15 )
-                        case A_send1
-                        solve( !KU( 'g'^~y ) @ #vk.14 )
-                          case B_send2
-                          SOLVED // trace found
-                        qed
-                      qed
-                    qed
-                  qed
+            solve( !KU( tag(h('g'^(~x*~y)), <'0', $A>) ) @ #vk.12 )
+              case A_send3
+              solve( !KU( 'g'^~x ) @ #vk.13 )
+                case A_send1
+                solve( !KU( 'g'^~y ) @ #vk.13 )
+                  case B_send2
+                  SOLVED // trace found
                 qed
               qed
             qed
@@ -2673,19 +2592,13 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
       case A_send3
       solve( !KU( tag(h('g'^(~x*~y)), <'0', $A.1>) ) @ #vk.5 )
         case A_send3
-        solve( splitEqs(4) )
-          case split_case_1
-          solve( !KU( pk(~sk.1) ) @ #vk.6 )
-            case A_send3
-            solve( splitEqs(6) )
-              case split_case_1
-              solve( !KU( 'g'^~y ) @ #vk.8 )
-                case B_send2
-                solve( !KU( 'g'^~x ) @ #vk.8 )
-                  case A_send1
-                  SOLVED // trace found
-                qed
-              qed
+        solve( !KU( pk(~sk.1) ) @ #vk.6 )
+          case A_send3
+          solve( !KU( 'g'^~y ) @ #vk.8 )
+            case B_send2
+            solve( !KU( 'g'^~x ) @ #vk.8 )
+              case A_send1
+              SOLVED // trace found
             qed
           qed
         qed
@@ -2717,21 +2630,15 @@ solve( Secret( A, B, x ) @ #i )
     case A_send3
     solve( !KU( revealSign(<'g'^~x, gy>, ~sk) ) @ #vk.4 )
       case A_send3
-      solve( !KU( 'g'^(~x*~x.1) ) @ #vk.1 )
-        case A_send1_case_1
-        by solve( !KU( ~x ) @ #vk.10 )
+      solve( !KU( 'g'^(~x*~x) ) @ #vk.1 )
+        case A_send1
+        by solve( !KU( ~x ) @ #vk.9 )
       next
-        case A_send1_case_2
-        by solve( !KU( ~x.1 ) @ #vk.10 )
-      next
-        case A_send3_case_1
-        by solve( !KU( ~x ) @ #vk.10 )
-      next
-        case A_send3_case_2
-        by solve( !KU( ~x.1 ) @ #vk.10 )
+        case A_send3
+        by contradiction /* cyclic */
       next
         case c_exp
-        by solve( !KU( ~x ) @ #vk.12 )
+        by solve( !KU( ~x ) @ #vk.11 )
       qed
     next
       case B_send4

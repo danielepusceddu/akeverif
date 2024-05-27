@@ -105,15 +105,48 @@ restriction onekeyperdirection:
     ((Gen( A, B, k1 ) @ #i) ∧ (Gen( A, B, k2 ) @ #j)) ⇒ (#i = #j)"
   // safety formula
 
-lemma injectiveagreementINITIATOR:
+lemma Executability:
+  exists-trace
+  "∃ #i.
+    ((Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))) ∧
+    (∀ A B id1 id2 #i.1 #j.
+      ((Create_I( A, id1 ) @ #i.1) ∧ (Create_I( B, id2 ) @ #j)) ⇒
+      (id1 = id2))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i.
+  (Finish( ) @ #i)
+ ∧
+  (∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥) ∧
+  (∀ A B id1 id2 #i.1 #j.
+    (Create_I( A, id1 ) @ #i.1) ∧ (Create_I( B, id2 ) @ #j)
+   ⇒
+    id1 = id2)"
+*/
+simplify
+solve( St_I_4( A, id, B, kab, kba, x, y ) ▶₁ #i )
+  case I_send3
+  solve( !KU( tag(~x, ~k) ) @ #vk )
+    case R_send4
+    solve( !KU( tag(~y.1, ~k.1) ) @ #vk.2 )
+      case I_send3
+      solve( !KU( ~x ) @ #vk.3 )
+        case I_send1
+        solve( !KU( ~y ) @ #vk.3 )
+          case R_send2
+          SOLVED // trace found
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma noninjectiveagreementINITIATOR:
   all-traces
   "∀ a b t #i.
     ((Commit( a, b, <'I', 'R', t> ) @ #i) ∧
      (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
-    (∃ #j.
-      (Running( b, a, <'I', 'R', t> ) @ #j) ∧
-      (¬(∃ a2 b2 #i2.
-          (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ (¬(#i2 = #i)))))"
+    (∃ #j. Running( b, a, <'I', 'R', t> ) @ #j)"
 /*
 guarded formula characterizing all counter-examples:
 "∃ a b t #i.
@@ -121,11 +154,7 @@ guarded formula characterizing all counter-examples:
  ∧
   (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
   (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
-  (∀ #j.
-    (Running( b, a, <'I', 'R', t> ) @ #j)
-   ⇒
-    ∃ a2 b2 #i2.
-     (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ ¬(#i2 = #i))"
+  (∀ #j. (Running( b, a, <'I', 'R', t> ) @ #j) ⇒ ⊥)"
 */
 simplify
 solve( Commit( a, b, <'I', 'R', t> ) @ #i )
@@ -142,34 +171,12 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   qed
 qed
 
-lemma Executability:
-  exists-trace
-  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
-/*
-guarded formula characterizing all satisfying traces:
-"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
-*/
-simplify
-solve( St_I_4( A, id, B, kab, kba, x, y ) ▶₁ #i )
-  case I_send3
-  solve( !KU( tag(~x, ~k) ) @ #vk )
-    case I_send3
-    solve( !KU( ~x ) @ #vk.2 )
-      case I_send1
-      SOLVED // trace found
-    qed
-  qed
-qed
-
-lemma injectiveagreementRESPONDER:
+lemma noninjectiveagreementRESPONDER:
   all-traces
   "∀ a b t #i.
     ((Commit( a, b, <'R', 'I', t> ) @ #i) ∧
      (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
-    (∃ #j.
-      (Running( b, a, <'R', 'I', t> ) @ #j) ∧
-      (¬(∃ a2 b2 #i2.
-          (Commit( a2, b2, <'R', 'I', t> ) @ #i2) ∧ (¬(#i2 = #i)))))"
+    (∃ #j. Running( b, a, <'R', 'I', t> ) @ #j)"
 /*
 guarded formula characterizing all counter-examples:
 "∃ a b t #i.
@@ -177,11 +184,7 @@ guarded formula characterizing all counter-examples:
  ∧
   (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
   (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
-  (∀ #j.
-    (Running( b, a, <'R', 'I', t> ) @ #j)
-   ⇒
-    ∃ a2 b2 #i2.
-     (Commit( a2, b2, <'R', 'I', t> ) @ #i2) ∧ ¬(#i2 = #i))"
+  (∀ #j. (Running( b, a, <'R', 'I', t> ) @ #j) ⇒ ⊥)"
 */
 simplify
 solve( Commit( a, b, <'R', 'I', t> ) @ #i )

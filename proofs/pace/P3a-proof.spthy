@@ -49,14 +49,16 @@ rule (modulo E) R_recv1:
 
 rule (modulo E) R_send2:
    [ Fr( ~y ), St_R_2( B, id, A, kab, x ) ]
-  --[ Running( B, A, <'I', 'R', x, ~y, kdf(kab, x, ~y)> ) ]->
+  --[ Running( B, A, <'I', 'R', x, ~y, kdf(kab, x, ~y)> ), Sent( ~y )
+  ]->
    [ St_R_3( B, id, A, kab, x, ~y, kdf(kab, x, ~y) ), Out( ~y ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) I_recv2:
    [ In( y ), St_I_2( A, id, B, kab, x ) ]
-  --[ Running( A, B, <'R', 'I', x, y, kdf(kab, x, y)> ) ]->
+  --[ Running( A, B, <'R', 'I', x, y, kdf(kab, x, y)> ), Recv( y )
+  ]->
    [ St_I_3( A, id, B, kab, x, y, kdf(kab, x, y) ) ]
 
   /* has exactly the trivial AC variant */
@@ -126,95 +128,34 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   qed
 qed
 
-lemma injectiveagreementINITIATOR:
-  all-traces
-  "∀ a b t #i.
-    ((Commit( a, b, <'I', 'R', t> ) @ #i) ∧
-     (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
-    (∃ #j.
-      (Running( b, a, <'I', 'R', t> ) @ #j) ∧
-      (¬(∃ a2 b2 #i2.
-          (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ (¬(#i2 = #i)))))"
-/*
-guarded formula characterizing all counter-examples:
-"∃ a b t #i.
-  (Commit( a, b, <'I', 'R', t> ) @ #i)
- ∧
-  (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
-  (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
-  (∀ #j.
-    (Running( b, a, <'I', 'R', t> ) @ #j)
-   ⇒
-    ∃ a2 b2 #i2.
-     (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ ¬(#i2 = #i))"
-*/
-simplify
-solve( Commit( a, b, <'I', 'R', t> ) @ #i )
-  case I_recv4
-  solve( St_I_4( a, id, b, kab, x, y, k ) ▶₁ #i )
-    case I_send3
-    solve( !KU( tag(~x, kdf(~k, ~x, y)) ) @ #vk )
-      case I_send3
-      solve( !KU( ~x ) @ #vk.1 )
-        case I_send1
-        SOLVED // trace found
-      qed
-    qed
-  qed
-qed
-
 lemma Executability:
   exists-trace
-  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+  "∃ #i.
+    ((Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))) ∧
+    (∀ y #i.1. (Recv( y ) @ #i.1) ⇒ (∃ #j. Sent( y ) @ #j))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+"∃ #i.
+  (Finish( ) @ #i)
+ ∧
+  (∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥) ∧
+  (∀ y #i.1. (Recv( y ) @ #i.1) ⇒ ∃ #j. (Sent( y ) @ #j))"
 */
 simplify
 solve( St_I_4( A, id, B, kab, x, y, k ) ▶₁ #i )
   case I_send3
-  solve( !KU( tag(~x, kdf(~k, ~x, y)) ) @ #vk )
-    case I_send3
-    solve( !KU( ~x ) @ #vk.1 )
-      case I_send1
-      SOLVED // trace found
-    qed
-  qed
-qed
-
-lemma noninjectiveagreementRESPONDER:
-  all-traces
-  "∀ a b t #i.
-    ((Commit( a, b, <'R', 'I', t> ) @ #i) ∧
-     (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
-    (∃ #j. Running( b, a, <'R', 'I', t> ) @ #j)"
-/*
-guarded formula characterizing all counter-examples:
-"∃ a b t #i.
-  (Commit( a, b, <'R', 'I', t> ) @ #i)
- ∧
-  (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
-  (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
-  (∀ #j. (Running( b, a, <'R', 'I', t> ) @ #j) ⇒ ⊥)"
-*/
-simplify
-solve( Commit( a, b, <'R', 'I', t> ) @ #i )
-  case R_send4
-  solve( St_R_4( a, id, b, kab, x, y, k ) ▶₀ #i )
-    case R_recv3
-    solve( !KU( tag(~y, kdf(~k, x, ~y)) ) @ #vk )
-      case I_send3
-      by contradiction /* from formulas */
-    next
+  solve( St_R_2( B.1, id.1, A.1, kab, x.1 ) ▶₁ #j )
+    case R_recv1
+    solve( !KU( tag(~x, kdf(~k, ~x, ~y)) ) @ #vk )
       case R_send4
-      by contradiction /* cyclic */
-    next
-      case c_tag
-      solve( !KU( kdf(~k, x, ~y) ) @ #vk.3 )
-        case c_kdf
-        solve( !KU( ~k ) @ #vk.4 )
-          case Rev
-          by contradiction /* from formulas */
+      solve( !KU( ~y ) @ #vk.1 )
+        case R_send2
+        solve( !KU( ~x ) @ #vk.2 )
+          case I_send1
+          solve( !KU( tag(~y, kdf(~k, ~x, ~y)) ) @ #vk.3 )
+            case I_send3
+            SOLVED // trace found
+          qed
         qed
       qed
     qed

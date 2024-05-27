@@ -354,19 +354,19 @@ rule (modulo E) I_recv2:
 rule (modulo E) I_send3:
    [ St_I_3( A, id, B, kab, x, gy, k ) ]
   -->
-   [ St_I_4( A, id, B, kab, x, gy, k ), Out( tag(k, <'I', gy>) ) ]
+   [ St_I_4( A, id, B, kab, x, gy, k ), Out( tag(<'I', gy>, k) ) ]
 
   /* has exactly the trivial AC variant */
 
 rule (modulo E) R_recv3:
    [ In( t ), St_R_3( B, id, A, kab, gx, y, k ) ]
-  --[ Eq( t, tag(k, <'I', 'g'^y>) ) ]->
+  --[ Eq( t, tag(<'I', 'g'^y>, k) ) ]->
    [ St_R_4( B, id, A, kab, gx, y, k ) ]
 
   /*
   rule (modulo AC) R_recv3:
      [ In( t ), St_R_3( B, id, A, kab, gx, y, k ) ]
-    --[ Eq( t, tag(k, <'I', z>) ) ]->
+    --[ Eq( t, tag(<'I', z>, k) ) ]->
      [ St_R_4( B, id, A, kab, gx, y, k ) ]
     variants (modulo AC)
     1. y     = y.12
@@ -379,13 +379,13 @@ rule (modulo E) R_recv3:
 rule (modulo E) R_send4:
    [ St_R_4( B, id, A, kab, gx, y, k ) ]
   --[ Commit( B, A, <'R', 'I', gx, 'g'^y, k> ), Secret( B, A, k ) ]->
-   [ St_R_5( B, id, A, kab, gx, y, k ), Out( tag(k, <'R', gx>) ) ]
+   [ St_R_5( B, id, A, kab, gx, y, k ), Out( tag(<'R', gx>, k) ) ]
 
   /*
   rule (modulo AC) R_send4:
      [ St_R_4( B, id, A, kab, gx, y, k ) ]
     --[ Commit( B, A, <'R', 'I', gx, z, k> ), Secret( B, A, k ) ]->
-     [ St_R_5( B, id, A, kab, gx, y, k ), Out( tag(k, <'R', gx>) ) ]
+     [ St_R_5( B, id, A, kab, gx, y, k ), Out( tag(<'R', gx>, k) ) ]
     variants (modulo AC)
     1. y     = y.12
        z     = 'g'^y.12
@@ -398,7 +398,7 @@ rule (modulo E) I_recv4:
    [ In( t ), St_I_4( A, id, B, kab, x, gy, k ) ]
   --[
   Commit( A, B, <'I', 'R', 'g'^x, gy, k> ), Secret( A, B, k ),
-  Finish( ), Eq( t, tag(k, <'R', 'g'^x>) )
+  Finish( ), Eq( t, tag(<'R', 'g'^x>, k) )
   ]->
    [ St_I_5( A, id, B, kab, x, gy, k ) ]
 
@@ -407,7 +407,7 @@ rule (modulo E) I_recv4:
      [ In( t ), St_I_4( A, id, B, kab, x, gy, k ) ]
     --[
     Commit( A, B, <'I', 'R', z, gy, k> ), Secret( A, B, k ), Finish( ),
-    Eq( t, tag(k, <'R', z>) )
+    Eq( t, tag(<'R', z>, k) )
     ]->
      [ St_I_5( A, id, B, kab, x, gy, k ) ]
     variants (modulo AC)
@@ -453,9 +453,9 @@ solve( Commit( a, b, <'I', 'R', t> ) @ #i )
   case I_recv4
   solve( St_I_4( a, id, b, kab, x, gy, k ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(h(z), <'R', 'g'^~x>) ) @ #vk )
+    solve( !KU( tag(<'R', 'g'^~x>, h(z)) ) @ #vk )
       case R_send4
-      solve( !KU( tag(h('g'^(~x*~y)), <'I', 'g'^~y>) ) @ #vk.2 )
+      solve( !KU( tag(<'I', 'g'^~y>, h('g'^(~x*~y))) ) @ #vk.2 )
         case I_send3
         solve( !KU( 'g'^~x ) @ #vk.3 )
           case I_send1
@@ -479,9 +479,9 @@ guarded formula characterizing all satisfying traces:
 simplify
 solve( St_I_4( A, id, B, kab, x, gy, k ) ▶₁ #i )
   case I_send3
-  solve( !KU( tag(h(z), <'R', 'g'^~x>) ) @ #vk )
+  solve( !KU( tag(<'R', 'g'^~x>, h(z)) ) @ #vk )
     case R_send4
-    solve( !KU( tag(h('g'^(~x*~y)), <'I', 'g'^~y>) ) @ #vk.2 )
+    solve( !KU( tag(<'I', 'g'^~y>, h('g'^(~x*~y))) ) @ #vk.2 )
       case I_send3
       solve( !KU( 'g'^~x ) @ #vk.3 )
         case I_send1
@@ -521,7 +521,7 @@ solve( Commit( a, b, <'R', 'I', t> ) @ #i )
   case R_send4
   solve( St_R_4( a, id, b, kab, gx, y, k ) ▶₀ #i )
     case R_recv3
-    solve( !KU( tag(h(z), <'I', 'g'^~y>) ) @ #vk )
+    solve( !KU( tag(<'I', 'g'^~y>, h(z)) ) @ #vk )
       case I_send3
       solve( !KU( 'g'^~y ) @ #vk.2 )
         case R_send2
@@ -555,7 +555,7 @@ solve( Secret( A, B, x ) @ #i )
   case I_recv4
   solve( St_I_4( A, id, B, kab, x.1, gy, x ) ▶₁ #i )
     case I_send3
-    solve( !KU( tag(h(z), <'R', 'g'^~x>) ) @ #vk.1 )
+    solve( !KU( tag(<'R', 'g'^~x>, h(z)) ) @ #vk.1 )
       case c_tag
       solve( splitEqs(1) )
         case split_case_2

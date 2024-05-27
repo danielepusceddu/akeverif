@@ -43,13 +43,13 @@ rule R_recv1:
 rule R_send2:
     let k = kdf(kab, x, ~y) in
     [Fr(~y), St_R_2(B, id, A, kab, x)]
-    --[Running(B, A, <'I', 'R', <x, ~y, k>>)]->
+    --[Running(B, A, <'I', 'R', <x, ~y, k>>), Sent(~y)]->
     [St_R_3(B, id, A, kab, x, ~y, k), Out(~y)]
 
 rule I_recv2:
     let k = kdf(kab, x, y) in
     [In(y), St_I_2(A, id, B, kab, x)]
-    --[Running(A, B, <'R', 'I', <x, y, k>>)]->
+    --[Running(A, B, <'R', 'I', <x, y, k>>), Recv(y)]->
     [St_I_3(A, id, B, kab, x, y, k)]
 
 rule I_send3:
@@ -84,28 +84,13 @@ lemma noninjectiveagreementINITIATOR:
         not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
         ==> Ex #j. Running(b,a,<'I','R',t>)@j"
 
-lemma injectiveagreementINITIATOR:
-    "All a b t #i.
-        Commit(a,b,<'I','R',t>)@i &
-        not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-        ==> (Ex #j. Running(b,a,<'I','R',t>)@j
-        & not (Ex a2 b2 #i2. Commit(a2,b2,<'I','R',t>)@i2
-        & not (#i2 = #i)))"
-
 // Verified
 lemma Executability:
     exists-trace
-    "Ex #i. 
-    Finish() @i &  not (Ex A #j. Reveal(A)@j)
-    "
+    "Ex #i. Finish() @i &  not (Ex A #j. Reveal(A)@j) 
+    & (All y #i. Recv(y)@i ==> Ex #j. Sent(y)@j)"
 
-// Falsified
-lemma noninjectiveagreementRESPONDER:
-    "All a b t #i.
-    Commit(a,b,<'R', 'I',t>)@i &
-    not ((Ex #r. Reveal(a)@r) | (Ex #r. Reveal(b)@r))
-    ==> Ex #j. Running(b,a,<'R', 'I',t>)@j"
-
+// Verified
 lemma injectiveagreementRESPONDER:
     "All a b t #i.
     Commit(a,b,<'R', 'I',t>)@i &
