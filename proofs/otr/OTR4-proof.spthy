@@ -2533,10 +2533,21 @@ qed
 
 lemma Executability:
   exists-trace
-  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+  "∃ #i.
+    ((Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))) ∧
+    (∀ A B id1 id2 #i.1 #j.
+      ((Create_I( A, id1 ) @ #i.1) ∧ (Create_R( B, id2 ) @ #j)) ⇒
+      (¬(B = A)))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+"∃ #i.
+  (Finish( ) @ #i)
+ ∧
+  (∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥) ∧
+  (∀ A B id1 id2 #i.1 #j.
+    (Create_I( A, id1 ) @ #i.1) ∧ (Create_R( B, id2 ) @ #j)
+   ⇒
+    ¬(B = A))"
 */
 simplify
 solve( St_I_4( A, B, id, skA, pk(x.1), x.2, gy ) ▶₁ #i )
@@ -2550,14 +2561,20 @@ solve( St_I_4( A, B, id, skA, pk(x.1), x.2, gy ) ▶₁ #i )
         solve( splitEqs(5) )
           case split_case_1
           solve( !KU( pk(~sk) ) @ #vk.9 )
-            case A_send3
-            solve( !KU( tag(h('g'^(~x*~y)), <'0', $A>) ) @ #vk.12 )
+            case B_send4
+            solve( !KU( revealSign(<'g'^~y.1, gx>, ~sk.2) ) @ #vk.19 )
               case A_send3
-              solve( !KU( 'g'^~x ) @ #vk.13 )
-                case A_send1
-                solve( !KU( 'g'^~y ) @ #vk.13 )
-                  case B_send2
-                  SOLVED // trace found
+              solve( !KU( tag(h('g'^(~x*~y)), <'0', $A.1>) ) @ #vk.13 )
+                case A_send3
+                solve( !KU( pk(~sk.1) ) @ #vk.14 )
+                  case A_send3
+                  solve( !KU( 'g'^~x ) @ #vk.15 )
+                    case A_send1
+                    solve( !KU( 'g'^~y ) @ #vk.14 )
+                      case B_send2
+                      SOLVED // trace found
+                    qed
+                  qed
                 qed
               qed
             qed

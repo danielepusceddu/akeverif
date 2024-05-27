@@ -21,7 +21,7 @@ equations:
 
 rule (modulo E) GenKey:
    [ Fr( ~sk ) ]
-  --[ Gen( ~sk ) ]->
+  --[ Gen( $A, ~sk ) ]->
    [ !Ltk( $A, ~sk ), !Pk( $A, pk(~sk) ), Out( pk(~sk) ) ]
 
   /* has exactly the trivial AC variant */
@@ -95,7 +95,7 @@ rule (modulo E) B_recv1:
 
 rule (modulo E) B_send2:
    [ Fr( ~y ), St_R_2( B, A, id, skB, pkA, gx ) ]
-  --[ Running( A, B, <'I', 'R', gx^~y> ), ReceivedPK( pkA ) ]->
+  --[ Running( B, A, <'I', 'R', gx^~y> ), Sent( pk(skB) ) ]->
    [
    St_R_3( B, A, id, skB, pkA, gx, ~y ),
    Out( <revealSign(<'g'^~y, A>, skB), pk(skB)> )
@@ -104,7 +104,7 @@ rule (modulo E) B_send2:
   /*
   rule (modulo AC) B_send2:
      [ Fr( ~y ), St_R_2( B, A, id, skB, pkA, gx ) ]
-    --[ Running( A, B, <'I', 'R', z> ), ReceivedPK( pkA ) ]->
+    --[ Running( B, A, <'I', 'R', z> ), Sent( pk(skB) ) ]->
      [
      St_R_3( B, A, id, skB, pkA, gx, ~y ),
      Out( <revealSign(<'g'^~y, A>, skB), pk(skB)> )
@@ -143,14 +143,17 @@ rule (modulo E) A_recv2:
   --[
   Commit( A, B, <'I', 'R', fst(getMessage(t))^x> ),
   Eq( revealVerify(t, <fst(getMessage(t)), A>, pkB), true ),
-  Finish( )
+  Finish( ), Recv( pkB )
   ]->
    [ St_I_3( A, B, id, skA, pkB, x, getMessage(t) ) ]
 
   /*
   rule (modulo AC) A_recv2:
      [ In( <t, pkB> ), St_I_2( A, B, id, skA, pkB, x ) ]
-    --[ Commit( A, B, <'I', 'R', z.1> ), Eq( z.2, true ), Finish( ) ]->
+    --[
+    Commit( A, B, <'I', 'R', z.1> ), Eq( z.2, true ), Finish( ),
+    Recv( pkB )
+    ]->
      [ St_I_3( A, B, id, skA, pkB, x, z ) ]
     variants (modulo AC)
       1. A     = A.19
@@ -1050,21 +1053,68 @@ restriction Equality:
   "∀ m1 m2 #i. (Eq( m1, m2 ) @ #i) ⇒ (m1 = m2)"
   // safety formula
 
+restriction oneKey:
+  "∀ A sk1 sk2 #i #j.
+    ((Gen( A, sk1 ) @ #i) ∧ (Gen( A, sk2 ) @ #j)) ⇒ (sk1 = sk2)"
+  // safety formula
+
+restriction oneCreateIPerParty:
+  "∀ A id1 id2 #i #j.
+    ((Create_I( A, id1 ) @ #i) ∧ (Create_I( A, id2 ) @ #j)) ⇒
+    (id1 = id2)"
+  // safety formula
+
 lemma Executability:
   exists-trace
-  "∃ #i. (Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))"
+  "∃ #i.
+    (((((Finish( ) @ #i) ∧ (¬(∃ A #j. Reveal( A ) @ #j))) ∧
+       (∀ y #i.1. (Recv( y ) @ #i.1) ⇒ (∃ #j. Sent( y ) @ #j))) ∧
+      (∀ A B id1 id2 #i.1 #j.
+        ((Create_R( A, id1 ) @ #i.1) ∧ (Create_R( B, id2 ) @ #j)) ⇒
+        (id1 = id2))) ∧
+     (∀ A B id1 id2 #i.1 #j.
+       ((Create_I( A, id1 ) @ #i.1) ∧ (Create_I( B, id2 ) @ #j)) ⇒
+       (id1 = id2))) ∧
+    (∀ A id1 #i.1.
+      (Create_I( A, id1 ) @ #i.1) ⇒
+      (¬(∃ id2 #j. Create_R( A, id2 ) @ #j)))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ #i. (Finish( ) @ #i) ∧ ∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥"
+"∃ #i.
+  (Finish( ) @ #i)
+ ∧
+  (∀ A #j. (Reveal( A ) @ #j) ⇒ ⊥) ∧
+  (∀ y #i.1. (Recv( y ) @ #i.1) ⇒ ∃ #j. (Sent( y ) @ #j)) ∧
+  (∀ A B id1 id2 #i.1 #j.
+    (Create_R( A, id1 ) @ #i.1) ∧ (Create_R( B, id2 ) @ #j)
+   ⇒
+    id1 = id2) ∧
+  (∀ A B id1 id2 #i.1 #j.
+    (Create_I( A, id1 ) @ #i.1) ∧ (Create_I( B, id2 ) @ #j)
+   ⇒
+    id1 = id2) ∧
+  (∀ A id1 #i.1.
+    (Create_I( A, id1 ) @ #i.1)
+   ⇒
+    ∀ id2 #j. (Create_R( A, id2 ) @ #j) ⇒ ⊥)"
 */
 simplify
 solve( St_I_2( A, B, id, skA, pk(x.1), x.2 ) ▶₁ #i )
   case A_send1
-  solve( !KU( revealSign(<x, $A>, ~sk) ) @ #vk.1 )
-    case A_send1
-    solve( !KU( pk(~sk) ) @ #vk.2 )
-      case A_send1
-      SOLVED // trace found
+  solve( St_R_2( B, A.2, id.1, ~sk, pkA, gx ) ▶₁ #j )
+    case B_recv1
+    solve( !KU( revealSign(<x, $A>, ~sk) ) @ #vk.1 )
+      case B_send2
+      solve( !KU( revealSign(<gx, $A.1>, ~sk.1) ) @ #vk.4 )
+        case A_send1
+        solve( !KU( pk(~sk) ) @ #vk.3 )
+          case B_send2
+          solve( !KU( pk(~sk.1) ) @ #vk.5 )
+            case A_send1
+            SOLVED // trace found
+          qed
+        qed
+      qed
     qed
   qed
 qed
@@ -1083,40 +1133,6 @@ guarded formula characterizing all counter-examples:
   (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
   (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
   (∀ #j. (Running( b, a, <'I', 'R', t> ) @ #j) ⇒ ⊥)"
-*/
-simplify
-solve( St_I_2( a, b, id, skA, pk(x.1), x.2 ) ▶₁ #i )
-  case A_send1
-  solve( !KU( revealSign(<x, $A>, ~sk) ) @ #vk.1 )
-    case A_send1
-    solve( !KU( pk(~sk) ) @ #vk.2 )
-      case A_send1
-      SOLVED // trace found
-    qed
-  qed
-qed
-
-lemma injectiveagreementINITIATOR:
-  all-traces
-  "∀ a b t #i.
-    ((Commit( a, b, <'I', 'R', t> ) @ #i) ∧
-     (¬((∃ #r. Reveal( a ) @ #r) ∨ (∃ #r. Reveal( b ) @ #r)))) ⇒
-    (∃ #j.
-      (Running( b, a, <'I', 'R', t> ) @ #j) ∧
-      (¬(∃ a2 b2 #i2.
-          (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ (¬(#i2 = #i)))))"
-/*
-guarded formula characterizing all counter-examples:
-"∃ a b t #i.
-  (Commit( a, b, <'I', 'R', t> ) @ #i)
- ∧
-  (∀ #r. (Reveal( a ) @ #r) ⇒ ⊥) ∧
-  (∀ #r. (Reveal( b ) @ #r) ⇒ ⊥) ∧
-  (∀ #j.
-    (Running( b, a, <'I', 'R', t> ) @ #j)
-   ⇒
-    ∃ a2 b2 #i2.
-     (Commit( a2, b2, <'I', 'R', t> ) @ #i2) ∧ ¬(#i2 = #i))"
 */
 simplify
 solve( St_I_2( a, b, id, skA, pk(x.1), x.2 ) ▶₁ #i )
